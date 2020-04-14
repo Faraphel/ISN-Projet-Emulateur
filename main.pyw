@@ -16,11 +16,44 @@ for file in os.listdir(PATH_MODULE): # On cherche les modules dans leur dossier
 
 class AppClass(): # Classe du "moteur" du jeu
 	def __init__(self): # Initialisation
-		classModule["display"].write("lancer une partie")
 
-	def navigation(key):
+		self.MainMenu()
+
+
+	def MainMenu(self, selected = 0): # Niveau 1
+		MainMenu_Option = {
+			"Lancer" : self.start,
+			"Option" : self.settings,
+			"Quitter" : self.leave,
+		} # On créer un dictionnaire qui associe toute les options proposé à leur fonction respective.
+		MainMenu_Keys = list(MainMenu_Option.keys()) # On créer une liste qui ne contient que les clé du dictionnaire, permettant d'utiliser des index numériques.
+
+		classModule["display"].write(MainMenu_Keys[selected]) # On affiche le texte sur l'écran
+
+		if selected == 0: func_up = "pass" # Si on est à la première option, ne fait rien
+		else: func_up = lambda: self.MainMenu(selected = selected - 1) # sinon, remonte
+
+		if selected == len(MainMenu_Keys) - 1: func_down = "pass" # Si on est à la dernière option, ne fait rien
+		else: func_down = lambda: self.MainMenu(selected = selected + 1) # sinon, descend
+
+		func_right = MainMenu_Option[MainMenu_Keys[selected]] # Renvoie la fonction associé à l'option selectionné
+
+		classModule["simon"].bind(UpCmd = func_up, DownCmd = func_down, LeftCmd = "pass", RightCmd = func_right)
+
+
+
+	def start(self):
 		pass
-		# Navigation avec les touches du simon dans le menu principal
+		# Code pour démarrer une partie
+
+	def settings(self):
+		classModule["display"].write("settings")
+
+	def leave(self):
+		pass
+		# Code pour quitter le jeu
+
+
 
 App = AppClass()
 

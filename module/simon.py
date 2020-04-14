@@ -18,9 +18,11 @@ class simon():
         self.dico_but["Down"].grid(row = 4, column = 2)
 
 
-    def MainMenu(self):
-        pass
-        # Bind les touches pour agir sur le menu principal
+    def bind(self, UpCmd, DownCmd, LeftCmd, RightCmd): # Bind les touches à leur fonction associé dans les arguments
+        self.dico_but["Up"].config(command = UpCmd)
+        self.dico_but["Left"].config(command = LeftCmd)
+        self.dico_but["Right"].config(command = RightCmd)
+        self.dico_but["Down"].config(command = DownCmd)
 
 
 classModule["simon"] = simon()
