@@ -10,4 +10,19 @@ class display():
         self.label.config(text = text)
 
 
+    def chrono(self, time):
+        minute = time // 60
+        seconde = time % 60
+
+        self.write("%02i:%02i" % (minute, seconde))
+
+        self.chrono_event = Fen.after(1000, lambda: self.chrono(time - 1))
+
+
+    def start(self):
+        self.chrono(time = 180)
+        # rien de spécial
+        # peut être chrono
+
+
 classModule["display"] = display()

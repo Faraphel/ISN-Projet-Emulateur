@@ -18,5 +18,9 @@ class wire():
             self.dico_wire[led]["WIRE"].grid(row = index, column = 2)
 
 
+    def start(self):
+        print("les fils sont oppérationnels")
+        # Code qui choisi des led qui doivent s'allumé, etc...
+
 
 classModule["wire"] = wire() # On ajoute le module à la liste des modules

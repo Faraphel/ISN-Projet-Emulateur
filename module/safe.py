@@ -9,4 +9,10 @@ class safe():
         self.scale = Scale(self.frame, from_ = 1, to_ = 4, orient = HORIZONTAL) # On créer un scroller pour sélectionner une valeur entre 1 et 4
         self.scale.grid(row = 2, column = 1)
 
+
+    def start(self):
+        pass
+        # Code qui choisi des combinaisons à rentré
+
+
 classModule["safe"] = safe()

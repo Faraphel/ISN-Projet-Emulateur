@@ -7,4 +7,10 @@ class button():
         self.big_but.grid(row = 1, column = 1)
 
 
+
+    def start(self):
+        pass
+        # déterminer les règles pour désamorçer
+
+
 classModule["button"] = button()

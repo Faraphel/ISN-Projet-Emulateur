@@ -11,6 +11,9 @@ class morse():
         self.morse.grid(row = 1, column = 1)
 
 
+    def start(self):
+        pass
+        # mot à afficher en morse
 
 
 classModule["morse"] = morse()

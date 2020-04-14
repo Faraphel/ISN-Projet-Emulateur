@@ -25,4 +25,9 @@ class simon():
         self.dico_but["Down"].config(command = DownCmd)
 
 
+    def start(self):
+        pass
+        # Code qui choisi des combinaisons à rentré et des led qui s'allument
+
+
 classModule["simon"] = simon()
