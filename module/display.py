@@ -6,5 +6,8 @@ class display():
         self.label = Label(self.frame, text = "ici on affichera le texte")
         self.label.grid(row = 1, column = 1, sticky = "NEWS")
 
+    def write(self, text):
+        self.label.config(text = text)
+
 
 classModule["display"] = display()

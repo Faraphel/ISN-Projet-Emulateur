@@ -14,5 +14,14 @@ for file in os.listdir(PATH_MODULE): # On cherche les modules dans leur dossier
 		exec(module.read()) # On les executes
 
 
+class AppClass(): # Classe du "moteur" du jeu
+	def __init__(self): # Initialisation
+		classModule["display"].write("lancer une partie")
+
+	def navigation(key):
+		pass
+		# Navigation avec les touches du simon dans le menu principal
+
+App = AppClass()
 
 mainloop() # On "active" la fênetre

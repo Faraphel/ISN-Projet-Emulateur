@@ -14,9 +14,13 @@ class simon():
         self.dico_but["Right"] = Button(self.frame, text = "", background = "indianred", width = 2, height = 1) # On créer le boutton à droite
         self.dico_but["Right"].grid(row = 3, column = 3)
 
-        self.dico_but["Down"] = Button(self.frame, text = "", background = "lightyellow", width = 2, height = 1)  # On créer le boutton en bas
+        self.dico_but["Down"] = Button(self.frame, text = "", background = "lightyellow", width = 2, height = 1)  # On créer le boutton
         self.dico_but["Down"].grid(row = 4, column = 2)
 
+
+    def MainMenu(self):
+        pass
+        # Bind les touches pour agir sur le menu principal
 
 
 classModule["simon"] = simon()
