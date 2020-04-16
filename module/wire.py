@@ -3,6 +3,7 @@ class wire():
         self.frame = LabelFrame(Fen, text = "Wire") # On créer une sous-fenêtre
         self.frame.grid(row = 1, column = 2, sticky = "NEWS") # On l'affiche
 
+        self.defuse = False # Le module n'est pas désamorçer.
         self.dico_wire = {} # On créer un dictionnaire vide qui va contenir tout les éléments
 
         for index, led in enumerate("ABCDEF"): # Il y a 6 câbles différents nommé par ces lettres
@@ -31,6 +32,9 @@ class wire():
                 self.dico_wire[wire]["LED"].config(background = "green")
 
 
+        self.wrong_cut = 0 # Compte le nombre de fils que le joueur n'aurait dû pas coupé avant
+        self.check(penality = False) # On compte le nombre de fil à corrigé pour les pénalités plus tard
+
 
     def cut_wire(self, led): #coupe les cables
         self.dico_wire[led]["WIRE"].config(command = lambda: "pass")
@@ -41,7 +45,7 @@ class wire():
         self.check()
 
 
-    def check(self): # Fonction qui vérifie si les câbles ont bien été coupé selon le manuel
+    def check(self, penality = True): # Fonction qui vérifie si les câbles ont bien été coupé selon le manuel
         self.rules = {
             "Facile": {
                 "A": {"Off": False, "On": False, "Blink": True},
@@ -69,25 +73,41 @@ class wire():
 
         Difficulty = App.config["Difficulté"]["Value"]
 
+        self.wire_errorTotal = 0 # Compte le nombre de fils en mauvais état
+
         for wire in self.dico_wire:
             lit_wire = self.dico_wire[wire]["LIT"]
 
             if type(self.rules[Difficulty][wire][lit_wire]) == str: # Si la condition est un texte (donc du type LED StatutDeLaLED):
                 condition = self.rules[Difficulty][wire][lit_wire].split(" ")
-                if self.dico_wire[wire]["CUT"] == (self.dico_wire[condition[0]]["LIT"] == condition[1]): # Si la règle est aussi bien respecté que la condition
-                    pass # Code éxécuté si le joueur à réussi
-                else:
-                    pass # Code éxécuté si le joueur à échoué
+                if self.dico_wire[wire]["CUT"] != (self.dico_wire[condition[0]]["LIT"] != condition[1]): # Si la règle n'est pas respecté
+                    self.wire_errorTotal += 1
 
             else:
-                if self.dico_wire[wire]["CUT"] == self.rules[Difficulty][wire][lit_wire]:
-                    pass # Code éxécuté si le joueur à réussi
-                else:
-                    pass # Code éxécuté si le joueur à échoué
+                if self.dico_wire[wire]["CUT"] != self.rules[Difficulty][wire][lit_wire]: # Si la règle n'est pas respecté
+                    self.wire_errorTotal += 1
 
 
-        # Si oui : cable désamorçer
-        # Si non : Erreur
+
+        if penality: # Si on compte les pénalité, alors on fait ces calculs
+            if self.wire_errorTotalBefore - self.wire_errorTotal == -1: # Si le fil à mal été coupé
+                self.wrong_cut += 1
+                # + Rajouter +1 sur le compteur
+
+
+        if self.wire_errorTotal - self.wrong_cut == 0: # Si le joueur à tout désamorçer, en comptant les fils qu'ils n'auraient pas du coupé
+            self.defuse = True
+            for led in self.dico_wire: # On rend les câbles insécable de nouveau pour évité une nouvelle erreur
+                self.dico_wire[led]["WIRE"].config(command = lambda: "pass")
+            # + Rajouter le bonus de temps
+
+
+        self.wire_errorTotalBefore = self.wire_errorTotal
+
+
+        # Si tout les fils ont été coupé correctement, alors le module est considéré comme étant désamorçer module.defuse = True
+        # Si une erreur est détecté, on vérifie si elle vient du fait que l'on a mal coupé le fil où si c'est le reste des câbles à désamorçer
+
 
 
 classModule["wire"] = wire() # On ajoute le module à la liste des modules
