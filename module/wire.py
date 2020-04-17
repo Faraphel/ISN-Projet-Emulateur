@@ -1,51 +1,5 @@
 class wire():
     def __init__(self): # Cette fonction est automatiquement éxécuter lors de la création de l'objet
-        self.frame = LabelFrame(Fen, text = "Wire") # On créer une sous-fenêtre
-        self.frame.grid(row = 1, column = 2, sticky = "NEWS") # On l'affiche
-
-        self.defuse = False # Le module n'est pas désamorçer.
-        self.dico_wire = {} # On créer un dictionnaire vide qui va contenir tout les éléments
-
-        for index, led in enumerate("ABCDEF"): # Il y a 6 câbles différents nommé par ces lettres
-            self.dico_wire[led] = {} # On les tries par leur lettre associé
-
-            self.dico_wire[led]["ID"] = Label(self.frame, text = led) # Affichage de la lettre du fil
-            self.dico_wire[led]["ID"].grid(row = index, column = 0)
-
-            self.dico_wire[led]["LED"] = Label(self.frame, text = "", background = "lightgray", relief = SUNKEN, width = 2, height = 1) # Affichage de la led
-            self.dico_wire[led]["LED"].grid(row = index, column = 1)
-
-            self.dico_wire[led]["WIRE"] = Button(self.frame, text = "---------------------", relief = FLAT) # Affichage du fil coupable
-            self.dico_wire[led]["WIRE"].grid(row = index, column = 2)
-
-            self.dico_wire[led]["CUT"] = False
-
-
-    def start(self): # Code qui choisi des led qui doivent s'allumé, etc...
-        for wire in self.dico_wire: # Pour chaque câbles, ...
-            self.dico_wire[wire]["WIRE"].config(command = lambda led = "%s" % wire: self.cut_wire(led = led)) # ... On le rend sécable.
-
-            self.dico_wire[wire]["LIT"] = random.choice(["Off", "On", "Blink"])
-            if self.dico_wire[wire]["LIT"] == "On":
-                self.dico_wire[wire]["LED"].config(background = "yellow")
-            if self.dico_wire[wire]["LIT"] == "Blink":
-                self.dico_wire[wire]["LED"].config(background = "green")
-
-
-        self.wrong_cut = 0 # Compte le nombre de fils que le joueur n'aurait dû pas coupé avant
-        self.check(penality = False) # On compte le nombre de fil à corrigé pour les pénalités plus tard
-
-
-    def cut_wire(self, led): #coupe les cables
-        self.dico_wire[led]["WIRE"].config(command = lambda: "pass")
-        self.dico_wire[led]["WIRE"].config(text = "---------   ---------")
-
-        self.dico_wire[led]["CUT"] = True
-
-        self.check()
-
-
-    def check(self, penality = True): # Fonction qui vérifie si les câbles ont bien été coupé selon le manuel
         self.rules = {
             "Facile": {
                 "A": {"Off": False, "On": False, "Blink": True},
@@ -71,6 +25,54 @@ class wire():
             }
         } # Règles du manuel transcrite dans le code
 
+
+        self.frame = LabelFrame(Fen, text = "Wire") # On créer une sous-fenêtre
+        self.frame.grid(row = 1, column = 2, sticky = "NEWS") # On l'affiche
+
+        self.dico_wire = {} # On créer un dictionnaire vide qui va contenir tout les éléments
+
+        for index, led in enumerate("ABCDEF"): # Il y a 6 câbles différents nommé par ces lettres
+            self.dico_wire[led] = {} # On les tries par leur lettre associé
+
+            self.dico_wire[led]["ID"] = Label(self.frame, text = led) # Affichage de la lettre du fil
+            self.dico_wire[led]["ID"].grid(row = index, column = 0)
+
+            self.dico_wire[led]["LED"] = Label(self.frame, text = "", background = "lightgray", relief = SUNKEN, width = 2, height = 1) # Affichage de la led
+            self.dico_wire[led]["LED"].grid(row = index, column = 1)
+
+            self.dico_wire[led]["WIRE"] = Button(self.frame, text = "---------------------", relief = FLAT) # Affichage du fil coupable
+            self.dico_wire[led]["WIRE"].grid(row = index, column = 2)
+
+            self.dico_wire[led]["CUT"] = False
+
+
+    def start(self): # Code qui choisi des led qui doivent s'allumé, etc...
+        self.defuse = False # Le module n'est pas désamorçer.
+
+        for wire in self.dico_wire: # Pour chaque câbles, ...
+            self.dico_wire[wire]["WIRE"].config(command = lambda led = "%s" % wire: self.cut_wire(led = led)) # ... On le rend sécable.
+
+            self.dico_wire[wire]["LIT"] = random.choice(["Off", "On", "Blink"])
+            if self.dico_wire[wire]["LIT"] == "On":
+                self.dico_wire[wire]["LED"].config(background = "yellow")
+            if self.dico_wire[wire]["LIT"] == "Blink":
+                self.dico_wire[wire]["LED"].config(background = "green")
+
+
+        self.wrong_cut = 0 # Compte le nombre de fils que le joueur n'aurait dû pas coupé avant
+        self.check(penality = False) # On compte le nombre de fil à corrigé pour les pénalités plus tard
+
+
+    def cut_wire(self, led): #coupe les cables
+        self.dico_wire[led]["WIRE"].config(command = lambda: "pass")
+        self.dico_wire[led]["WIRE"].config(text = "---------   ---------")
+
+        self.dico_wire[led]["CUT"] = True
+
+        self.check()
+
+
+    def check(self, penality = True): # Fonction qui vérifie si les câbles ont bien été coupé selon le manuel
         Difficulty = App.config["Difficulté"]["Value"]
 
         self.wire_errorTotal = 0 # Compte le nombre de fils en mauvais état
