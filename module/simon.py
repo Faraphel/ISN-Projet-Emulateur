@@ -45,14 +45,38 @@ class simon():
 
 
     def start(self):
+        self.defuse = False # Le module n'est pas désamorçer.
         self.Sequence = []
-        for _ in range(5):
+        self.MaxStep = 6
+        for _ in range(self.MaxStep):
             self.Sequence.append(random.choice(["Up", "Left", "Right", "Down"]))
 
-        print(self.Sequence)
-
-        self.Step = 4
+        self.Step = 0
         self.sequence_choice()
+
+        self.bind(
+        UpCmd = lambda: self.check(Button = "Up"),
+        LeftCmd = lambda: self.check(Button = "Left"),
+        RightCmd = lambda: self.check(Button = "Right"),
+        DownCmd = lambda: self.check(Button = "Down"))
+
+        self.Sequence_Button = [] # Séquence de bouton sur lesquels le joueur vient de cliqué
+
+
+    def def_sequence(self):
+        Difficulty = App.config["Difficulté"]["Value"] # Difficulté du jeu
+        nomber_condition = len(self.rules[Difficulty])
+
+        for index in range(nomber_condition): # boucle pour tester toute les conditions
+            Condition = list(self.rules[Difficulty].keys())[index] # Condition pour utiliser le réarangement des touches
+            Condition_split = Condition.split(" ")
+            if Condition_split[0] != "Else": State_led = classModule["wire"].dico_wire[Condition_split[0]]["LIT"]
+
+            if (State_led == Condition_split[-1]) or (Condition_split[0] == "Else"): # regarder si le sconditon est bonne avec les LED
+                self.rules_sequence = self.rules[Difficulty][Condition] # difinition de la bonne séquence
+                print(self.rules_sequence)
+                print(Condition)
+                break # On arrête la boucle car on a trouvé ce que l'on cherchait
 
 
     def reset_all(self):
@@ -75,15 +99,37 @@ class simon():
                 self.dico_but[self.Sequence_step].config(background = "yellow")
 
         else:
-            frame = 0
+            frame = -1
 
         Fen.after(1000, lambda: self.reset_all())
         Fen.after(1500, lambda: self.sequence_choice(frame + 1))
 
 
-        # frame désigne le bouton qui doit s'allumer pendant la séquence, à quel étape on en est
+    def check(self, Button):
+        self.Sequence_Button.append(Button)
+        Sequence_part = self.Sequence[:(self.Step + 1)]
 
-        # Code qui choisi des combinaisons à rentré et des led qui s'allument
+        if len(self.Sequence_Button) >= len(Sequence_part): # Si le joueur a fait autant d'input qu'il y a de LED qui s'allument dans la séquence
+
+            _Stop = False
+            for index in range(len(Sequence_part)):
+                if self.rules_sequence[Sequence_part[index]] != self.Sequence_Button[index]:
+                    _Stop = True
+
+            if not(_Stop):
+                self.Step += 1
+
+            else:
+                pass
+                # + Pénalité
+
+            self.Sequence_Button = []
+
+
+        if self.Step >= self.MaxStep - 1: # Si le joueur a atteint la dernière étape
+            self.defuse = True # la bombe est désamorçé.
+            self.bind(LeftCmd = lambda: "pass", RightCmd = lambda: "pass", UpCmd = lambda: "pass", DownCmd = lambda: "pass")
+
 
 
 

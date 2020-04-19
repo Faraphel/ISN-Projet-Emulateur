@@ -49,10 +49,11 @@ class AppClass(): # Classe du "moteur" du jeu
 
 
 	def start(self):
+		classModule["simon"].bind(UpCmd = "pass", DownCmd = "pass", LeftCmd = "pass", RightCmd = "pass")
+
 		for module in classModule:
 			classModule[module].start()
 
-		classModule["simon"].bind(UpCmd = "pass", DownCmd = "pass", LeftCmd = "pass", RightCmd = "pass")
 
 		# Initilisalisé tout les modules
 		# Démmaré un chrono

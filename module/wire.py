@@ -62,6 +62,8 @@ class wire():
         self.wrong_cut = 0 # Compte le nombre de fils que le joueur n'aurait dû pas coupé avant
         self.check(penality = False) # On compte le nombre de fil à corrigé pour les pénalités plus tard
 
+        classModule["simon"].def_sequence() # Puisque le module "simon" a besoin de l'état des LEDs pour fonctionner, on l'éxécute après leur définition
+
 
     def cut_wire(self, led): #coupe les cables
         self.dico_wire[led]["WIRE"].config(command = lambda: "pass")
