@@ -6,7 +6,7 @@ import json
 import random
 
 ########## constante ###########
-PATH_MODULE = "module/"
+PATH_MODULE = "./module/"
 
 ######## initialisation ########
 Fen = Tk()
