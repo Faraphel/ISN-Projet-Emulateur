@@ -15,8 +15,6 @@ class morse():
             'POULET': 8, 'QUICHE': 6, 'RITUEL': 12, 'SAUCE': 10, 'TUILE': 9, 'UTILE': 2,
             'VICTOIRE': 11, 'WEEKEND': 9, 'XENOPHOBE': 5, 'YOGA': 2, 'ZEN': 9}
 
-            ABCDEFGHIJKLMNOPQRSTUVWXYZ
-
         self.MorseLetter = {
             "A": ".-", "B":"-...", "C":"-.-.", "D":"-..", "E":".", "F":"..-.", "G":"--.",
             "H":"....", "I":"..", "J":".---", "K":"-.-", "L":"--.", "M":"--", "N":"-.",
@@ -37,6 +35,9 @@ class morse():
         self.SelectButton.grid(row = 2, column = 1)
 
         self.SelectFen = Toplevel() # Créer une fenêtre secondaire.
+        self.SelectFen.iconbitmap(PATH_ASSETS + "icon.ico") # Change l'icone
+        self.SelectFen.title("Emulateur - Morse") # Change le titre
+        self.SelectFen.protocol('WM_DELETE_WINDOW', lambda: "pass") # Rend la fenêtre non fermable
         self.HideSymbol()
 
     def start(self):
@@ -44,19 +45,75 @@ class morse():
         self.SelectButton.config(command = self.ShowSymbol)
         # mot à afficher en morse
 
-    def ShowSymbol(self):
+        ######
+        Img_random = list(range(1, 13)) # On créer une liste allant de 1 à 12
+        random.shuffle(Img_random) # On la mélange
+        self.dico_PNG = {} # On créer un dico pour garder en mémoire toute les images
+        self.dico_But = {}
+        for index, Num_img in enumerate(Img_random): # On les affiches toutes dans des bouttons
+            self.dico_PNG[Num_img] = ImageTk.PhotoImage(Image.open(PATH_ASSETS + "morse/" + str(Num_img) + ".png"))
+            self.dico_But[Num_img] = Button(self.SelectFen, image = self.dico_PNG[Num_img], width = 200, height = 200, command = lambda x = Num_img: self.check(x))
+            self.dico_But[Num_img].grid(row = index // 3, column = index % 3)
+
+        self.SelectFen.update()
+        ######
+
+        ######
+        self.word = random.choice(list(self.MorseWordTable.keys())) # On prend un mot au pif dans la liste
+
+        List_letter = []
+        for Letter in self.word:
+            List_letter.append(self.MorseLetter[Letter])
+
+        self.word_morse = " ".join(List_letter)
+        ######
+
+        self.LedMorse()
+
+        self.True_symbol = self.MorseWordTable[self.word]
+
+
+    def LedMorse(self, index = 0): # Responsable de l'affichage du mot en morse avec la LED
+
+        if index < len(self.word_morse):
+
+            if self.word_morse[index] == ".":
+                self.morse.config(background = "yellow")
+                Fen.after(250, lambda: self.morse.config(background = "lightgray"))
+                Fen.after(750, lambda: self.LedMorse(index + 1)) # 500 ms d'attente entre les signaux, plus les 250ms ou elle reste allumé afin de séparer les points et les virgules entre eux
+
+            elif self.word_morse[index] == "-":
+                self.morse.config(background = "yellow")
+                Fen.after(1000, lambda: self.morse.config(background = "lightgray"))
+                Fen.after(1500, lambda: self.LedMorse(index + 1))
+
+            elif self.word_morse[index] == " ":
+                Fen.after(2000, lambda: self.LedMorse(index + 1))
+
+        else:
+            Fen.after(4000, lambda: self.LedMorse(index = 0))
+
+
+
+    def ShowSymbol(self): # Affiche la fenêtre de sélection
         self.SelectFen.deiconify() # Affiche la fenêtre de sélection
         self.SelectButton.config(command = self.HideSymbol, text = "Cacher les cartes")
 
-    def HideSymbol(self):
+    def HideSymbol(self): # Affiche la fenêtre de sélection
         self.SelectFen.withdraw() # Cache la fenêtre de sélection
         self.SelectButton.config(command = self.ShowSymbol, text = "Afficher les cartes")
 
 
-classModule["morse"] = morse()
+    def check(self, symbol_press):
+        if symbol_press == self.True_symbol:
+            self.defuse = True
+            for index in self.dico_But:
+                self.dico_But[index].config(command = lambda: "pass")
 
-# 1 - Charger les images
-# 2 - Afficher les images dans un ordre aléatoire (afin de ne pas avoir d'exploit avec leur position)
-# 3 - Faire choisir un mot aléatoirement et l'afficher en morse
-# 4 - Rendre la sélection des mots effectives
-# 5 - Vérifier si le joueur à donné la bonne réponse
+        else:
+            pass
+            # + pénalité
+
+
+
+classModule["morse"] = morse()

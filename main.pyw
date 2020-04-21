@@ -4,12 +4,16 @@ import os
 import pickle
 import json
 import random
+from PIL import Image, ImageTk
 
 ########## constante ###########
 PATH_MODULE = "./module/"
+PATH_ASSETS = "./assets/"
 
 ######## initialisation ########
 Fen = Tk()
+Fen.iconbitmap(PATH_ASSETS + "icon.ico")
+Fen.title("Emulateur - Bombe")
 classModule = {} # Dictionnaire qui va contenir tout les modules afin qu'ils puissent intéragir entre eux
 
 for file in os.listdir(PATH_MODULE): # On cherche les modules dans leur dossier
