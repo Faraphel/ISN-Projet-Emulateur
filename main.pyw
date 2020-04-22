@@ -55,6 +55,8 @@ class AppClass(): # Classe du "moteur" du jeu
 	def start(self):
 		classModule["simon"].bind(UpCmd = "pass", DownCmd = "pass", LeftCmd = "pass", RightCmd = "pass")
 
+		self.Life = self.config["Vie"]["Value"] # On initialise le nombre de vie comme indiqué dans les paramètres
+
 		for module in classModule:
 			classModule[module].start()
 

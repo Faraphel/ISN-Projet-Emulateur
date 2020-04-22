@@ -1,5 +1,5 @@
 class morse():
-    def __init__(self): # Cette fonction est automatiquement éxécuter lors de la création de l'objetself.Complete = False
+    def __init__(self): # Cette fonction est automatiquement éxécuter lors de la création de l'objet
         self.PATH_SYMBOL = "./assets/morse/"
         self.MorseWordTable = {
             'ABSTRAIT': 3, 'BAIGNER': 9, 'CACHOT': 10, 'DALLE': 2, 'ERREUR': 11, 'FLEUR': 6,
@@ -13,15 +13,17 @@ class morse():
             'CUIVRE': 3, 'DORMIR': 2, 'EFFECTIF': 8, 'FABULEUX': 3, 'GRANDE': 12, 'HAUTEUR': 7,
             'IDEE': 7, 'JOIE': 12, 'KOALA': 6, 'LOUP': 4, 'MOUCHE': 1, 'NOUS': 9, 'ORANGE': 11,
             'POULET': 8, 'QUICHE': 6, 'RITUEL': 12, 'SAUCE': 10, 'TUILE': 9, 'UTILE': 2,
-            'VICTOIRE': 11, 'WEEKEND': 9, 'XENOPHOBE': 5, 'YOGA': 2, 'ZEN': 9}
+            'VICTOIRE': 11, 'WEEKEND': 9, 'XENOPHOBE': 5, 'YOGA': 2, 'ZEN': 9
+            }
 
         self.MorseLetter = {
             "A": ".-", "B":"-...", "C":"-.-.", "D":"-..", "E":".", "F":"..-.", "G":"--.",
             "H":"....", "I":"..", "J":".---", "K":"-.-", "L":"--.", "M":"--", "N":"-.",
             "O":"---", "P":".--.", "Q":"--.-", "R":".-.", "S":"...", "T":"-", "U":"..-",
-            "V":"...-", "W":".--", "X":"-..-", "Y":"-.--", "Z":"--.."}
+            "V":"...-", "W":".--", "X":"-..-", "Y":"-.--", "Z":"--.."
+            }
 
-        self.frame = LabelFrame(Fen, text = "Morse") # On créer une sous-f  enêtre
+        self.frame = LabelFrame(Fen, text = "Morse") # On créer une sous-fenêtre
         self.frame.grid(row = 2, column = 2, sticky = "NEWS") # On l'affiche
 
         self.frame.grid_rowconfigure(1, weight = 1) # tout les objets seront centré horizontalement
@@ -107,12 +109,12 @@ class morse():
     def check(self, symbol_press):
         if symbol_press == self.True_symbol:
             self.defuse = True
+            classModule["display"].checkDefuse()
             for index in self.dico_But:
                 self.dico_But[index].config(command = lambda: "pass")
 
         else:
-            pass
-            # + pénalité
+            classModule["display"].PenalityLife()
 
 
 

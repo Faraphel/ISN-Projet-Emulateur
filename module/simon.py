@@ -70,12 +70,12 @@ class simon():
         for index in range(nomber_condition): # boucle pour tester toute les conditions
             Condition = list(self.rules[Difficulty].keys())[index] # Condition pour utiliser le réarangement des touches
             Condition_split = Condition.split(" ")
-            if Condition_split[0] != "Else": State_led = classModule["wire"].dico_wire[Condition_split[0]]["LIT"]
 
-            if (State_led == Condition_split[-1]) or (Condition_split[0] == "Else"): # regarder si le sconditon est bonne avec les LED
+            if Condition_split[0] != "Else": State_led = classModule["wire"].dico_wire[Condition_split[0]]["LIT"]
+            else: State_led = Condition_split[-1]
+
+            if (State_led == Condition_split[-1]): # regarder si le condition est bonne avec les LED
                 self.rules_sequence = self.rules[Difficulty][Condition] # difinition de la bonne séquence
-                print(self.rules_sequence)
-                print(Condition)
                 break # On arrête la boucle car on a trouvé ce que l'on cherchait
 
 
@@ -120,14 +120,14 @@ class simon():
                 self.Step += 1
 
             else:
-                pass
-                # + Pénalité
+                classModule["display"].PenalityLife()
 
             self.Sequence_Button = []
 
 
         if self.Step >= self.MaxStep - 1: # Si le joueur a atteint la dernière étape
             self.defuse = True # la bombe est désamorçé.
+            classModule["display"].checkDefuse()
             self.bind(LeftCmd = lambda: "pass", RightCmd = lambda: "pass", UpCmd = lambda: "pass", DownCmd = lambda: "pass")
 
 

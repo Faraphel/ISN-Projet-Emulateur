@@ -71,12 +71,12 @@ class safe():
             self.Step += 1
             if self.Step >= Step_max: # Si à la dernière étape
                 self.defuse = True
-                print("DEFUSER")
+                classModule["display"].checkDefuse()
             else:
                 self.zone_choice()
 
-        else: print("FAUX")
-        # +pénaliter si le nombre d'erreur autorisé est atteint donc enlever une vie
+        else:
+            classModule["display"].PenalityLife()
 
 
 

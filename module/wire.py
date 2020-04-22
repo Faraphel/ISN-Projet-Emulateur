@@ -62,7 +62,8 @@ class wire():
         self.wrong_cut = 0 # Compte le nombre de fils que le joueur n'aurait dû pas coupé avant
         self.check(penality = False) # On compte le nombre de fil à corrigé pour les pénalités plus tard
 
-        classModule["simon"].def_sequence() # Puisque le module "simon" a besoin de l'état des LEDs pour fonctionner, on l'éxécute après leur définition
+        if "simon" in classModule: classModule["simon"].def_sequence() # Puisque le module "simon" a besoin de l'état des LEDs pour fonctionner, on l'éxécute après leur définition
+        if "button" in classModule: classModule["button"].def_condition() # Puisque le module "button" a besoin de l'état des LEDs pour fonctionner, on l'éxécute après leur définition
 
 
     def cut_wire(self, led): #coupe les cables
@@ -96,11 +97,12 @@ class wire():
         if penality: # Si on compte les pénalité, alors on fait ces calculs
             if self.wire_errorTotalBefore - self.wire_errorTotal == -1: # Si le fil à mal été coupé
                 self.wrong_cut += 1
-                # + Rajouter +1 sur le compteur
+                classModule["display"].PenalityLife()
 
 
         if self.wire_errorTotal - self.wrong_cut == 0: # Si le joueur à tout désamorçer, en comptant les fils qu'ils n'auraient pas du coupé
             self.defuse = True
+            classModule["display"].checkDefuse()
             for led in self.dico_wire: # On rend les câbles insécable de nouveau pour évité une nouvelle erreur
                 self.dico_wire[led]["WIRE"].config(command = lambda: "pass")
             # + Rajouter le bonus de temps
