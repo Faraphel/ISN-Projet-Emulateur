@@ -79,7 +79,10 @@ class safe():
             classModule["display"].PenalityLife()
 
 
-
+    def reset(self):
+        self.label.config(background = "lightgray") # On éteint la LED
+        self.scale.config(command = lambda: "pass") # Désactive la mise à jour du curseur
+        self.Valid_but.config(command = lambda: "pass") # Désactive le bouton
 
 
 

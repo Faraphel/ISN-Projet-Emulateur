@@ -29,7 +29,6 @@ class morse():
         self.frame.grid_rowconfigure(1, weight = 1) # tout les objets seront centré horizontalement
         self.frame.grid_columnconfigure(1, weight = 1) # tout les objets seront centré verticalement
 
-
         self.morse = Label(self.frame, text = "", background = "lightgray", relief = SUNKEN, width = 2, height = 1)
         self.morse.grid(row = 1, column = 1)
 
@@ -42,12 +41,17 @@ class morse():
         self.SelectFen.protocol('WM_DELETE_WINDOW', lambda: "pass") # Rend la fenêtre non fermable
         self.HideSymbol()
 
+        self.ready = Label(self.SelectFen, text = "Lancer une partie pour\nafficher les symboles")
+        self.ready.grid(row = 1, column = 1)
+
+
     def start(self):
         self.defuse = False
         self.SelectButton.config(command = self.ShowSymbol)
         # mot à afficher en morse
 
         ######
+        self.ready.grid_forget()
         Img_random = list(range(1, 13)) # On créer une liste allant de 1 à 12
         random.shuffle(Img_random) # On la mélange
         self.dico_PNG = {} # On créer un dico pour garder en mémoire toute les images
@@ -82,18 +86,18 @@ class morse():
             if self.word_morse[index] == ".":
                 self.morse.config(background = "yellow")
                 Fen.after(250, lambda: self.morse.config(background = "lightgray"))
-                Fen.after(750, lambda: self.LedMorse(index + 1)) # 500 ms d'attente entre les signaux, plus les 250ms ou elle reste allumé afin de séparer les points et les virgules entre eux
+                self.Led_event = Fen.after(750, lambda: self.LedMorse(index + 1)) # 500 ms d'attente entre les signaux, plus les 250ms ou elle reste allumé afin de séparer les points et les virgules entre eux
 
             elif self.word_morse[index] == "-":
                 self.morse.config(background = "yellow")
                 Fen.after(1000, lambda: self.morse.config(background = "lightgray"))
-                Fen.after(1500, lambda: self.LedMorse(index + 1))
+                self.Led_event = Fen.after(1500, lambda: self.LedMorse(index + 1))
 
             elif self.word_morse[index] == " ":
-                Fen.after(2000, lambda: self.LedMorse(index + 1))
+                self.Led_event = Fen.after(2000, lambda: self.LedMorse(index + 1))
 
         else:
-            Fen.after(4000, lambda: self.LedMorse(index = 0))
+            self.Led_event = Fen.after(4000, lambda: self.LedMorse(index = 0))
 
 
 
@@ -116,6 +120,14 @@ class morse():
         else:
             classModule["display"].PenalityLife()
 
+
+    def reset(self):
+        self.morse.config(background = "lightgray")
+        for Num_img in self.dico_But:
+            self.dico_But[Num_img].destroy()
+
+        self.ready.grid(row = 1, column = 1)
+        Fen.after_cancel(self.Led_event)
 
 
 classModule["morse"] = morse()

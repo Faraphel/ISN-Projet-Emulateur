@@ -48,15 +48,17 @@ class wire():
 
     def start(self): # Code qui choisi des led qui doivent s'allumé, etc...
         self.defuse = False # Le module n'est pas désamorçer.
+        self.Blink_Event = {}
 
         for wire in self.dico_wire: # Pour chaque câbles, ...
+            self.Blink_Event[wire] = None
             self.dico_wire[wire]["WIRE"].config(command = lambda led = "%s" % wire: self.cut_wire(led = led)) # ... On le rend sécable.
 
             self.dico_wire[wire]["LIT"] = random.choice(["Off", "On", "Blink"])
             if self.dico_wire[wire]["LIT"] == "On":
                 self.dico_wire[wire]["LED"].config(background = "yellow")
             if self.dico_wire[wire]["LIT"] == "Blink":
-                self.dico_wire[wire]["LED"].config(background = "green")
+                self.blink_led(wire)
 
 
         self.wrong_cut = 0 # Compte le nombre de fils que le joueur n'aurait dû pas coupé avant
@@ -64,6 +66,13 @@ class wire():
 
         if "simon" in classModule: classModule["simon"].def_sequence() # Puisque le module "simon" a besoin de l'état des LEDs pour fonctionner, on l'éxécute après leur définition
         if "button" in classModule: classModule["button"].def_condition() # Puisque le module "button" a besoin de l'état des LEDs pour fonctionner, on l'éxécute après leur définition
+
+
+    def blink_led(self, wire, state = False):
+        if state: self.dico_wire[wire]["LED"].config(background = "yellow")
+        else: self.dico_wire[wire]["LED"].config(background = "lightgray")
+
+        self.Blink_Event[wire] = Fen.after(750, lambda: self.blink_led(wire, not(state)) )
 
 
     def cut_wire(self, led): #coupe les cables
@@ -114,6 +123,13 @@ class wire():
         # Si tout les fils ont été coupé correctement, alors le module est considéré comme étant désamorçer module.defuse = True
         # Si une erreur est détecté, on vérifie si elle vient du fait que l'on a mal coupé le fil où si c'est le reste des câbles à désamorçer
 
+    def reset(self):
+        for led in self.dico_wire:
+            if self.Blink_Event[led] != None: Fen.after_cancel(self.Blink_Event[led]) # On désactive le clignotement
+
+            self.dico_wire[led]["LED"].config(background = "lightgray") # On rend chaque led éteinte
+            self.dico_wire[led]["WIRE"].config(text = "---------------------", command = lambda: "pass") # On répare tout les fils
+            self.dico_wire[led]["CUT"] = False # Les fils ne sont plus coupé
 
 
 classModule["wire"] = wire() # On ajoute le module à la liste des modules

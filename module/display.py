@@ -5,7 +5,7 @@ class display():
         self.frame = LabelFrame(Fen, text = "Display") # On créer une sous-fenêtre
         self.frame.grid(row = 1, column = 1, sticky = "NEWS") # On l'affiche
 
-        self.label = Label(self.frame, text = "ici on affichera le texte")
+        self.label = Label(self.frame, text = "chargement du chrono")
         self.label.grid(row = 1, column = 1, sticky = "NEWS")
 
     def write(self, text):
@@ -28,15 +28,25 @@ class display():
         else:
             self.write("%02i:%02i" % (self.minute, self.second))
 
-        if self.time > 0:
+        if self.time <= 45: # Clignotement du chrono
+            if self.time % 2 == 0: self.label.config(foreground = "indianred", background = "gold")
+            else: self.label.config(foreground = "gold", background = "indianred")
+
+        else:
+            self.label.config(foreground = "black", background = "SystemButtonFace")
+
+        if self.time > 0: # Vérification que le joueur n'ai pas dépassé le temps imparti
             self.chrono_event = Fen.after(1000, self.chrono)
-        else: self.Lose() # Perdu par manque de temps
+
+        else:
+            self.Lose() # Perdu par manque de temps
+
 
 
     def start(self):
         self.PenalityAnimation = False
         self.DefuseAnimation = False
-        self.time = 181 # En lanceant le chrono, une seconde est immédiatement supprimée
+        self.time = App.config["Temps"]["Value"] + 1 # En lanceant le chrono, une seconde est immédiatement supprimée
         self.chrono()
 
 
@@ -51,6 +61,8 @@ class display():
         if not(_Stop): # Si tout les modules sont désamorcé
             Fen.after_cancel(self.chrono_event) # On désactive le chrono
             self.write(random.choice(["GG", "Bravo", "Félicitation"]))
+
+            self.reset_all()
 
         else:
             self.DefuseAnimation = True
@@ -67,6 +79,17 @@ class display():
     def Lose(self):
         Fen.after_cancel(self.chrono_event) # On désactive le chrono
         self.write(random.choice(["Perdu", "Dommage", "Try again"]))
-        # Réitialiser tout les modules
+
+        self.reset_all()
+
+
+    def reset_all(self): # Cette fonction demande à tous les autres modules de se réinitialiser
+        for module in classModule:
+            classModule[module].reset()
+
+
+    def reset(self): # Cette fonction est appelé a chaque fin de partie pour réinitialiser ce module
+        self.label.config(foreground = "black", background = "SystemButtonFace")
+        Fen.after(7500, lambda: App.MainMenu()) # On laisse le joueur devant le message de victoire / défaite pendant 7.5 secondes
 
 classModule["display"] = display()

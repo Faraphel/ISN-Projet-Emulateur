@@ -89,20 +89,16 @@ class simon():
     def sequence_choice(self, frame = 0):
         if frame <= self.Step:
             self.Sequence_step = self.Sequence[frame]
-            if self.Sequence_step == "Up":
-                self.dico_but[self.Sequence_step].config(background = "green")
-            elif self.Sequence_step == "Left":
-                self.dico_but[self.Sequence_step].config(background = "blue")
-            elif self.Sequence_step == "Right":
-                self.dico_but[self.Sequence_step].config(background = "red")
-            elif self.Sequence_step == "Down":
-                self.dico_but[self.Sequence_step].config(background = "yellow")
+            if self.Sequence_step == "Up": self.dico_but[self.Sequence_step].config(background = "green")
+            elif self.Sequence_step == "Left": self.dico_but[self.Sequence_step].config(background = "blue")
+            elif self.Sequence_step == "Right": self.dico_but[self.Sequence_step].config(background = "red")
+            elif self.Sequence_step == "Down": self.dico_but[self.Sequence_step].config(background = "yellow")
 
         else:
             frame = -1
 
         Fen.after(1000, lambda: self.reset_all())
-        Fen.after(1500, lambda: self.sequence_choice(frame + 1))
+        self.Event_sequence = Fen.after(1500, lambda: self.sequence_choice(frame + 1))
 
 
     def check(self, Button):
@@ -130,7 +126,9 @@ class simon():
             classModule["display"].checkDefuse()
             self.bind(LeftCmd = lambda: "pass", RightCmd = lambda: "pass", UpCmd = lambda: "pass", DownCmd = lambda: "pass")
 
-
+    def reset(self):
+        Fen.after_cancel(self.Event_sequence)
+        self.bind(LeftCmd = lambda: "pass", RightCmd = lambda: "pass", UpCmd = lambda: "pass", DownCmd = lambda: "pass")
 
 
 classModule["simon"] = simon()

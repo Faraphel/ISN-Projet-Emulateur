@@ -72,6 +72,9 @@ class button():
             classModule["display"].PenalityLife()
 
 
+    def reset(self):
+        self.big_but.config(command = "pass")
+
 classModule["button"] = button()
 
 # 2 - Le bouton doit être relié à la fonction "check"

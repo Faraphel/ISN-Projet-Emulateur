@@ -37,15 +37,24 @@ class AppClass(): # Classe du "moteur" du jeu
 		} # On créer un dictionnaire qui associe toute les options proposé à leur fonction respective.
 		MainMenu_Keys = list(MainMenu_Option.keys()) # On créer une liste qui ne contient que les clé du dictionnaire, permettant d'utiliser des index numériques.
 
-		classModule["display"].write(MainMenu_Keys[selected]) # On affiche le texte sur l'écran
+		prefix = "< "
+		suffix = " >"
 
-		if selected == 0: func_up = "pass" # Si on est à la première option, ne fait rien
+		if selected == 0:
+			func_up = "pass" # Si on est à la première option, ne fait rien
+			prefix = "  "
+
 		else: func_up = lambda: self.MainMenu(selected = selected - 1) # sinon, remonte
 
-		if selected == len(MainMenu_Keys) - 1: func_down = "pass" # Si on est à la dernière option, ne fait rien
+		if selected == len(MainMenu_Keys) - 1:
+			func_down = "pass" # Si on est à la dernière option, ne fait rien
+			suffix = "  "
+
 		else: func_down = lambda: self.MainMenu(selected = selected + 1) # sinon, descend
 
 		func_right = MainMenu_Option[MainMenu_Keys[selected]] # Renvoie la fonction associé à l'option selectionné
+
+		classModule["display"].write(prefix + MainMenu_Keys[selected] + suffix) # On affiche le texte sur l'écran
 
 
 		classModule["simon"].bind(UpCmd = func_up, DownCmd = func_down, LeftCmd = "pass", RightCmd = func_right)
@@ -70,13 +79,22 @@ class AppClass(): # Classe du "moteur" du jeu
 		SettingsMenu_Keys = list(self.config.keys()) # On créer une liste qui ne contient que les clé du dictionnaire, permettant d'utiliser des index numériques.
 		selected_name = SettingsMenu_Keys[selected]
 
-		classModule["display"].write(selected_name) # On affiche le texte sur l'écran
+		prefix = "< "
+		suffix = " >"
 
-		if selected == 0: func_up = "pass" # Si on est à la première option, ne fait rien
+		if selected == 0:
+			func_up = "pass" # Si on est à la première option, ne fait rien
+			prefix = "  "
+
 		else: func_up = lambda: self.settings(selected = selected - 1) # sinon, remonte
 
-		if selected == len(SettingsMenu_Keys) - 1: func_down = "pass" # Si on est à la dernière option, ne fait rien
+		if selected == len(SettingsMenu_Keys) - 1:
+			func_down = "pass" # Si on est à la dernière option, ne fait rien
+			suffix = "  "
+
 		else: func_down = lambda: self.settings(selected = selected + 1) # sinon, descend
+
+		classModule["display"].write(prefix + selected_name + suffix) # On affiche le texte sur l'écran
 
 		selected_value = self.config[selected_name]["Available"].index(self.config[selected_name]["Value"]) # Valeur de l'index de la valeur déjà défini dans les paramètres
 		func_right = lambda: self.modif_settings(selected_name = selected_name, selected = selected_value) # Renvoie la fonction associé à l'option selectionné
@@ -85,21 +103,30 @@ class AppClass(): # Classe du "moteur" du jeu
 		classModule["simon"].bind(UpCmd = func_up, DownCmd = func_down, LeftCmd = func_left, RightCmd = func_right)
 
 
-	def modif_settings(self, selected_name, selected = 0):
+	def modif_settings(self, selected_name, selected = 0): # selected_name -> nom de la variable que l'on change # selected -> valeur actuellement sélectionné
 		 # On créer une liste qui ne contient que les clé du dictionnaire, permettant d'utiliser des index numériques.
 		ModifSettingsMenu_Keys = self.config[selected_name]["Available"]
 
-		classModule["display"].write(ModifSettingsMenu_Keys[selected]) # On affiche le texte sur l'écran
+		prefix = "< "
+		suffix = " >"
 
-		if selected == 0: func_up = "pass" # Si on est à la première option, ne fait rien
+		if selected == 0:
+			func_up = "pass" # Si on est à la première option, ne fait rien
+			prefix = "  "
+
 		else: func_up = lambda: self.modif_settings(selected_name = selected_name, selected = selected - 1)
 
-		if selected == len(ModifSettingsMenu_Keys) - 1: func_down = "pass" # Si on est à la dernière option, ne fait rien
+		if selected == len(ModifSettingsMenu_Keys) - 1:
+			func_down = "pass" # Si on est à la dernière option, ne fait rien
+			suffix = "  "
+
 		else: func_down = lambda: self.modif_settings(selected_name = selected_name, selected = selected + 1) # sinon, descend
+
+		classModule["display"].write(prefix + str(ModifSettingsMenu_Keys[selected]) + suffix) # On affiche le texte sur l'écran
 
 
 		func_right = lambda: self.save_settings(selected_name = selected_name, selected = ModifSettingsMenu_Keys[selected])
-		func_left = lambda: self.settings(selected = 0)
+		func_left = lambda: self.settings(selected = list(self.config.keys()).index(selected_name)) # On renvoie le joueur sur le menu de l'option qu'il est en train d'éditer
 
 		classModule["simon"].bind(UpCmd = func_up, DownCmd = func_down, LeftCmd = func_left, RightCmd = func_right)
 
@@ -111,7 +138,7 @@ class AppClass(): # Classe du "moteur" du jeu
 		with open(r"config.pickle", "wb") as file:
 			pickle.dump(self.config, file)
 
-		self.settings(selected = 0)
+		self.settings(selected = list(self.config.keys()).index(selected_name)) # On renvoie le joueur sur le menu de l'option qu'il est en train d'éditer
 
 
 	def load_settings(self): # Lire le fichier pickle -> self.config
@@ -121,6 +148,7 @@ class AppClass(): # Classe du "moteur" du jeu
 		except: # Sinon, charge les options par défaut
 			with open(r"config.json","rb") as file:
 				self.config = json.load(file)
+
 
 	def leave(self):
 		Fen.destroy()
