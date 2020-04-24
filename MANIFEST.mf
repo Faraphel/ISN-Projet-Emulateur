@@ -1,0 +1,2 @@
+librairie à installer :
+  - PIL (commande : pip install pillow)
