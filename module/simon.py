@@ -19,22 +19,28 @@ class simon():
             }
         }
 
-        self.frame = LabelFrame(Fen, text = "Simon") # On créer une sous-fenêtre
+        self.reset_color()
+
+        self.frame = LabelFrame(Fen, text = "Simon", width = 180, height = 180) # On créer une sous-fenêtre
         self.frame.grid(row = 2, column = 1, sticky = "NEWS") # On l'affiche
+
+        self.frame.grid_propagate(0) # Force le LabelFrame à ne pas changer de taille
+
+
 
         self.dico_but = {} # On créer un dictionnaire qui va contenir les objets bouttons.
 
-        self.dico_but["Up"] = Button(self.frame, text = "", background = "lightgreen", width = 2, height = 1) # On créer le boutton du haut
-        self.dico_but["Up"].grid(row = 2, column = 2)
+        self.dico_but["Up"] = Button(self.frame, text = "", background = self.green_off_color, width = 4, height = 2) # On créer le boutton du haut
+        self.dico_but["Up"].grid(row = 1, column = 2)
 
-        self.dico_but["Left"] = Button(self.frame, text = "", background = "lightblue", width = 2, height = 1) # On créer le boutton à gauche
-        self.dico_but["Left"].grid(row = 3, column = 1)
+        self.dico_but["Left"] = Button(self.frame, text = "", background = self.blue_off_color, width = 4, height = 2) # On créer le boutton à gauche
+        self.dico_but["Left"].grid(row = 2, column = 1)
 
-        self.dico_but["Right"] = Button(self.frame, text = "", background = "indianred", width = 2, height = 1) # On créer le boutton à droite
-        self.dico_but["Right"].grid(row = 3, column = 3)
+        self.dico_but["Right"] = Button(self.frame, text = "", background = self.red_off_color, width = 4, height = 2) # On créer le boutton à droite
+        self.dico_but["Right"].grid(row = 2, column = 3)
 
-        self.dico_but["Down"] = Button(self.frame, text = "", background = "lightyellow", width = 2, height = 1)  # On créer le boutton
-        self.dico_but["Down"].grid(row = 4, column = 2)
+        self.dico_but["Down"] = Button(self.frame, text = "", background = self.yellow_off_color, width = 4, height = 2)  # On créer le boutton
+        self.dico_but["Down"].grid(row = 3, column = 2)
 
 
     def bind(self, UpCmd, DownCmd, LeftCmd, RightCmd): # Bind les touches à leur fonction associé dans les arguments
@@ -44,7 +50,30 @@ class simon():
         self.dico_but["Down"].config(command = DownCmd)
 
 
+    def reset_color(self):
+        self.red_off_color = "indianred" # Couleur défini, peut être modifier par le mode daltonien
+        self.red_lit_color = "red"
+        self.blue_off_color = "lightblue"
+        self.blue_lit_color = "blue"
+        self.green_off_color = "lightgreen"
+        self.green_lit_color = "green"
+        self.yellow_off_color = "lightyellow"
+        self.yellow_lit_color = "yellow"
+
     def start(self):
+        if App.config["Mode daltonien"]["Value"] == "Protanopie":
+            self.red_off_color = "gray"
+            self.red_lit_color = "black"
+
+        elif App.config["Mode daltonien"]["Value"] == "Deutéranopie":
+            self.red_off_color = "gray"
+            self.red_lit_color = "black"
+
+        elif App.config["Mode daltonien"]["Value"] == "Tritanopie":
+            self.blue_off_color = "gray"
+            self.blue_lit_color = "black"
+
+
         self.defuse = False # Le module n'est pas désamorçer.
         self.Sequence = []
         self.MaxStep = 6
@@ -80,19 +109,19 @@ class simon():
 
 
     def reset_all(self):
-            self.dico_but["Up"].config(background = "lightgreen")
-            self.dico_but["Left"].config(background = "lightblue")
-            self.dico_but["Right"].config(background = "indianred")
-            self.dico_but["Down"].config(background = "lightyellow")
+            self.dico_but["Up"].config(background = self.green_off_color)
+            self.dico_but["Left"].config(background = self.blue_off_color)
+            self.dico_but["Right"].config(background = self.red_off_color)
+            self.dico_but["Down"].config(background = self.yellow_off_color)
 
 
     def sequence_choice(self, frame = 0):
         if frame <= self.Step:
             self.Sequence_step = self.Sequence[frame]
-            if self.Sequence_step == "Up": self.dico_but[self.Sequence_step].config(background = "green")
-            elif self.Sequence_step == "Left": self.dico_but[self.Sequence_step].config(background = "blue")
-            elif self.Sequence_step == "Right": self.dico_but[self.Sequence_step].config(background = "red")
-            elif self.Sequence_step == "Down": self.dico_but[self.Sequence_step].config(background = "yellow")
+            if self.Sequence_step == "Up": self.dico_but[self.Sequence_step].config(background = self.green_lit_color)
+            elif self.Sequence_step == "Left": self.dico_but[self.Sequence_step].config(background = self.blue_lit_color)
+            elif self.Sequence_step == "Right": self.dico_but[self.Sequence_step].config(background = self.red_lit_color)
+            elif self.Sequence_step == "Down": self.dico_but[self.Sequence_step].config(background = self.yellow_lit_color)
 
         else:
             frame = -1

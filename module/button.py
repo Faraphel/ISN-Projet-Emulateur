@@ -18,10 +18,18 @@ class button():
             }
         }
 
-        self.frame = LabelFrame(Fen, text = "Button") # On créer une sous-fenêtre
+        self.frame = LabelFrame(Fen, text = "Button", width = 180, height = 180) # On créer une sous-fenêtre
         self.frame.grid(row = 2, column = 3, sticky = "NEWS") # On l'affiche
 
-        self.big_but = Button(self.frame, text = "", background = "lightgray", width = 8, height = 5, relief = GROOVE) # On créer le boutton du haut
+        self.frame.grid_propagate(0) # Force le LabelFrame à ne pas changer de taille
+
+        self.frame.grid_rowconfigure(1, weight = 1) # tout les objets seront centré horizontalement
+        self.frame.grid_columnconfigure(1, weight = 1) # tout les objets seront centré verticalement
+
+        self.big_but = Button(  self.frame, text = "Appuyez", foreground = "white",
+                                background = "#F13308", width = 10, height = 5,
+                                relief = GROOVE, font = ("Arial Black", 10)) # On créer le boutton du haut
+
         self.big_but.grid(row = 1, column = 1)
 
 
@@ -76,6 +84,3 @@ class button():
         self.big_but.config(command = "pass")
 
 classModule["button"] = button()
-
-# 2 - Le bouton doit être relié à la fonction "check"
-# 3 - On vérifie que la condition est respecté

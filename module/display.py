@@ -2,11 +2,16 @@ class display():
     def __init__(self): # Cette fonction est automatiquement éxécuter lors de la création de l'objet
         self.defuse = True # Ce module est toujours désamorçé.
 
-        self.frame = LabelFrame(Fen, text = "Display") # On créer une sous-fenêtre
-        self.frame.grid(row = 1, column = 1, sticky = "NEWS") # On l'affiche
+        self.frame = LabelFrame(Fen, text = "Display", width = 180, height = 180) # On créer une sous-fenêtre
+        self.frame.grid(row = 1, column = 1) # On l'affiche
 
-        self.label = Label(self.frame, text = "chargement du chrono")
-        self.label.grid(row = 1, column = 1, sticky = "NEWS")
+        self.frame.grid_propagate(0) # Force le LabelFrame à ne pas changer de taille
+        self.frame.grid_rowconfigure(1, weight = 1) # Centre verticalement
+        self.frame.grid_columnconfigure(1, weight = 1) # Centre horizontalement
+
+
+        self.label = Label(self.frame, text = "chargement du chrono", font = ("TkDefaultFont", 15))
+        self.label.grid(row = 1, column = 1)
 
     def write(self, text):
         self.label.config(text = text)
@@ -35,7 +40,7 @@ class display():
         else:
             self.label.config(foreground = "black", background = "SystemButtonFace")
 
-        if self.time > 0: # Vérification que le joueur n'ai pas dépassé le temps imparti
+        if self.time >= 0: # Vérification que le joueur n'ai pas dépassé le temps imparti
             self.chrono_event = Fen.after(1000, self.chrono)
 
         else:
@@ -53,12 +58,12 @@ class display():
     def checkDefuse(self):
         self.time += App.config["Bonus de temps"]["Value"]
 
-        _Stop = False
+        _Stop = 0
         for module in classModule:
             if classModule[module].defuse == False:
-                _Stop = True
+                _Stop += 1
 
-        if not(_Stop): # Si tout les modules sont désamorcé
+        if _Stop <= App.config["Module négli."]["Value"]: # Si tout les modules sont désamorcé
             Fen.after_cancel(self.chrono_event) # On désactive le chrono
             self.write(random.choice(["GG", "Bravo", "Félicitation"]))
 
@@ -71,6 +76,7 @@ class display():
     def PenalityLife(self):
         App.Life -= 1
         self.PenalityAnimation = True
+        self.time -= App.config["Malus de temps"]["Value"]
 
         if App.Life <= 0:
             self.Lose()

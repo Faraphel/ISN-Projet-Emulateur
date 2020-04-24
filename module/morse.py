@@ -23,8 +23,10 @@ class morse():
             "V":"...-", "W":".--", "X":"-..-", "Y":"-.--", "Z":"--.."
             }
 
-        self.frame = LabelFrame(Fen, text = "Morse") # On créer une sous-fenêtre
+        self.frame = LabelFrame(Fen, text = "Morse", width = 180, height = 180) # On créer une sous-fenêtre
         self.frame.grid(row = 2, column = 2, sticky = "NEWS") # On l'affiche
+
+        self.frame.grid_propagate(0) # Force le LabelFrame à ne pas changer de taille
 
         self.frame.grid_rowconfigure(1, weight = 1) # tout les objets seront centré horizontalement
         self.frame.grid_columnconfigure(1, weight = 1) # tout les objets seront centré verticalement
@@ -33,7 +35,7 @@ class morse():
         self.morse.grid(row = 1, column = 1)
 
         self.SelectButton = Button(self.frame, text = "", relief = RIDGE, width = 16, height = 3)
-        self.SelectButton.grid(row = 2, column = 1)
+        self.SelectButton.grid(row = 2, column = 1, sticky = "WE")
 
         self.SelectFen = Toplevel() # Créer une fenêtre secondaire.
         self.SelectFen.iconbitmap(PATH_ASSETS + "icon.ico") # Change l'icone

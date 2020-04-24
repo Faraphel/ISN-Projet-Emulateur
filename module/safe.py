@@ -26,8 +26,14 @@ class safe():
         }
 
 
-        self.frame = LabelFrame(Fen, text = "Safe") # On créer une sous-fenêtre
+        self.frame = LabelFrame(Fen, text = "Safe", width = 180, height = 180) # On créer une sous-fenêtre
         self.frame.grid(row = 1, column = 3, sticky = "NEWS") # On l'affiche
+
+        self.frame.grid_propagate(0) # Force le LabelFrame à ne pas changer de taille
+
+        self.frame.grid_columnconfigure(1, weight = 1)
+        self.frame.grid_rowconfigure(1, weight = 1)
+
 
         self.label = Label(self.frame, text = "", background = "lightgray", relief = SUNKEN, width = 2, height = 1) # On créer la led
         self.label.grid(row = 1, column = 1)
@@ -35,7 +41,7 @@ class safe():
         self.scale = Scale(self.frame, from_ = 1, to_ = 4, orient = HORIZONTAL) # On créer un scroller pour sélectionner une valeur entre 1 et 4
         self.scale.grid(row = 2, column = 1)
 
-        self.Valid_but = Button(self.frame, text = "Validé", background = "lightgreen", relief = RIDGE)
+        self.Valid_but = Button(self.frame, text = "Validé", background = "lightgreen", relief = RIDGE, width = 10)
         self.Valid_but.grid(row = 3, column = 1)
 
 
@@ -83,12 +89,6 @@ class safe():
         self.label.config(background = "lightgray") # On éteint la LED
         self.scale.config(command = lambda: "pass") # Désactive la mise à jour du curseur
         self.Valid_but.config(command = lambda: "pass") # Désactive le bouton
-
-
-
-
-
-        # Code qui choisi des combinaisons à rentré
 
 
 classModule["safe"] = safe()

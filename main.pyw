@@ -33,6 +33,7 @@ class AppClass(): # Classe du "moteur" du jeu
 		MainMenu_Option = {
 			"Lancer" : self.start,
 			"Option" : self.settings,
+			"Reinit. Option.": self.confirm_reinit_option,
 			"Quitter" : self.leave,
 		} # On créer un dictionnaire qui associe toute les options proposé à leur fonction respective.
 		MainMenu_Keys = list(MainMenu_Option.keys()) # On créer une liste qui ne contient que les clé du dictionnaire, permettant d'utiliser des index numériques.
@@ -72,7 +73,6 @@ class AppClass(): # Classe du "moteur" du jeu
 
 		# Initilisalisé tout les modules
 		# Démmaré un chrono
-
 
 	def settings(self, selected = 0):
 		 # On créer un dictionnaire qui associe toute les options proposé à leur fonction respective.
@@ -146,8 +146,24 @@ class AppClass(): # Classe du "moteur" du jeu
 			with open(r"config.pickle","rb") as file:
 				self.config = pickle.load(file)
 		except: # Sinon, charge les options par défaut
-			with open(r"config.json","rb") as file:
-				self.config = json.load(file)
+			self.reinit_option()
+
+
+	def confirm_reinit_option(self):
+		classModule["display"].write("Êtes-vous sur de\nvouloir réinitialiser ?")
+		cancel = lambda: self.MainMenu(selected = 2)
+		confirm = lambda: self.reinit_option(mainmenu_return = True)
+		classModule["simon"].bind(UpCmd = cancel, DownCmd = cancel, LeftCmd = cancel, RightCmd = confirm)
+
+
+	def reinit_option(self, mainmenu_return = False):
+		with open(r"config.json","rb") as file:
+			self.config = json.load(file)
+
+		with open(r"config.pickle","wb") as file: # Recréer le .pickle
+			pickle.dump(self.config, file)
+
+		if mainmenu_return: self.MainMenu(selected = 2)
 
 
 	def leave(self):

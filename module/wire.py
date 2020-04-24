@@ -26,12 +26,18 @@ class wire():
         } # Règles du manuel transcrite dans le code
 
 
-        self.frame = LabelFrame(Fen, text = "Wire") # On créer une sous-fenêtre
-        self.frame.grid(row = 1, column = 2, sticky = "NEWS") # On l'affiche
+        self.frame = LabelFrame(Fen, text = "Wire", width = 180, height = 180)
+        self.frame.grid(row = 1, column = 2) # On l'affiche
+
+        self.frame.grid_propagate(0) # Force le LabelFrame à ne pas changer de taille
+
+        [self.frame.grid_columnconfigure(i, weight = 1) for i in range(3)] # Centre (horizontalement) # On créer une sous-fenêtre
 
         self.dico_wire = {} # On créer un dictionnaire vide qui va contenir tout les éléments
 
         for index, led in enumerate("ABCDEF"): # Il y a 6 câbles différents nommé par ces lettres
+            self.frame.grid_rowconfigure(index, weight = 1) # Centre verticalement
+
             self.dico_wire[led] = {} # On les tries par leur lettre associé
 
             self.dico_wire[led]["ID"] = Label(self.frame, text = led) # Affichage de la lettre du fil
