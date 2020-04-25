@@ -4,6 +4,7 @@ import os
 import pickle
 import json
 import random
+import math
 from PIL import Image, ImageTk
 
 ########## constante ###########
@@ -12,6 +13,7 @@ PATH_ASSETS = "./assets/"
 
 ######## initialisation ########
 Fen = Tk()
+Fen.resizable(width = False, height = False)
 Fen.iconbitmap(PATH_ASSETS + "icon.ico")
 Fen.title("Emulateur - Bombe")
 classModule = {} # Dictionnaire qui va contenir tout les modules afin qu'ils puissent intéragir entre eux
@@ -26,13 +28,14 @@ class AppClass(): # Classe du "moteur" du jeu
 
 		self.load_settings()
 		self.MainMenu()
-
+		self.InfinityMode = False
 
 	def MainMenu(self, selected = 0): # Niveau 1
 
 		MainMenu_Option = {
 			"Lancer" : self.start,
 			"Option" : self.settings,
+			"Mode Infini": self.start_infinity_mode,
 			"Reinit. Option.": self.confirm_reinit_option,
 			"Quitter" : self.leave,
 		} # On créer un dictionnaire qui associe toute les options proposé à leur fonction respective.
@@ -64,7 +67,6 @@ class AppClass(): # Classe du "moteur" du jeu
 
 	def start(self):
 		classModule["simon"].bind(UpCmd = "pass", DownCmd = "pass", LeftCmd = "pass", RightCmd = "pass")
-
 		self.Life = self.config["Vie"]["Value"] # On initialise le nombre de vie comme indiqué dans les paramètres
 
 		for module in classModule:
@@ -73,6 +75,12 @@ class AppClass(): # Classe du "moteur" du jeu
 
 		# Initilisalisé tout les modules
 		# Démmaré un chrono
+
+	def start_infinity_mode(self):
+		self.InfinityMode = True
+		self.start()
+
+
 
 	def settings(self, selected = 0):
 		 # On créer un dictionnaire qui associe toute les options proposé à leur fonction respective.

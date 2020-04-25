@@ -1,8 +1,10 @@
 class display():
     def __init__(self): # Cette fonction est automatiquement éxécuter lors de la création de l'objet
         self.defuse = True # Ce module est toujours désamorçé.
+        self.InitInfinity = False # Vaut False si la partie en mode infinity est à sa première partie, si tous les modules sont alors désamoçé une fois, elle vaut True.
+        # Permet de ne lancer le chrono qu'une seule fois.
 
-        self.frame = LabelFrame(Fen, text = "Display", width = 180, height = 180) # On créer une sous-fenêtre
+        self.frame = LabelFrame(Fen, text = "Ecran d'affichage", width = 180, height = 180, borderwidth = 4) # On créer une sous-fenêtre
         self.frame.grid(row = 1, column = 1) # On l'affiche
 
         self.frame.grid_propagate(0) # Force le LabelFrame à ne pas changer de taille
@@ -51,8 +53,10 @@ class display():
     def start(self):
         self.PenalityAnimation = False
         self.DefuseAnimation = False
-        self.time = App.config["Temps"]["Value"] + 1 # En lanceant le chrono, une seconde est immédiatement supprimée
-        self.chrono()
+
+        if self.InitInfinity == False: # Si le jeu n'a pas encore été lancé
+            self.time = App.config["Temps"]["Value"] + 1 # En lanceant le chrono, une seconde est immédiatement supprimée
+            self.chrono()
 
 
     def checkDefuse(self):
@@ -64,9 +68,7 @@ class display():
                 _Stop += 1
 
         if _Stop <= App.config["Module négli."]["Value"]: # Si tout les modules sont désamorcé
-            Fen.after_cancel(self.chrono_event) # On désactive le chrono
             self.write(random.choice(["GG", "Bravo", "Félicitation"]))
-
             self.reset_all()
 
         else:
@@ -86,6 +88,8 @@ class display():
         Fen.after_cancel(self.chrono_event) # On désactive le chrono
         self.write(random.choice(["Perdu", "Dommage", "Try again"]))
 
+        self.InitInfinity = False
+        App.InfinityMode = False
         self.reset_all()
 
 
@@ -95,7 +99,14 @@ class display():
 
 
     def reset(self): # Cette fonction est appelé a chaque fin de partie pour réinitialiser ce module
-        self.label.config(foreground = "black", background = "SystemButtonFace")
-        Fen.after(7500, lambda: App.MainMenu()) # On laisse le joueur devant le message de victoire / défaite pendant 7.5 secondes
+        if App.InfinityMode == False: # Si l'on n'est pas en mode infini
+            Fen.after_cancel(self.chrono_event) # On désactive le chrono
+            self.label.config(foreground = "black", background = "SystemButtonFace")
+
+            Fen.after(7500, lambda: App.MainMenu()) # On laisse le joueur devant le message de victoire / défaite pendant 7.5 secondes
+
+        else: # Si l'on est en mode infini
+            self.InitInfinity = True # On a déjà fini le jeu une fois
+            Fen.after(1000, App.start) # On relance le jeu
 
 classModule["display"] = display()

@@ -26,7 +26,7 @@ class wire():
         } # Règles du manuel transcrite dans le code
 
 
-        self.frame = LabelFrame(Fen, text = "Wire", width = 180, height = 180)
+        self.frame = LabelFrame(Fen, text = "Fils", width = 180, height = 180, borderwidth = 4)
         self.frame.grid(row = 1, column = 2) # On l'affiche
 
         self.frame.grid_propagate(0) # Force le LabelFrame à ne pas changer de taille
@@ -55,6 +55,7 @@ class wire():
     def start(self): # Code qui choisi des led qui doivent s'allumé, etc...
         self.defuse = False # Le module n'est pas désamorçer.
         self.Blink_Event = {}
+
 
         for wire in self.dico_wire: # Pour chaque câbles, ...
             self.Blink_Event[wire] = None
@@ -115,7 +116,7 @@ class wire():
                 classModule["display"].PenalityLife()
 
 
-        if self.wire_errorTotal - self.wrong_cut == 0: # Si le joueur à tout désamorçer, en comptant les fils qu'ils n'auraient pas du coupé
+        if self.wire_errorTotal <= self.wrong_cut: # Si le joueur à tout désamorcé, en comptant les fils qu'ils n'auraient pas du coupé
             self.defuse = True
             classModule["display"].checkDefuse()
             for led in self.dico_wire: # On rend les câbles insécable de nouveau pour évité une nouvelle erreur

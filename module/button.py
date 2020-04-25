@@ -18,7 +18,7 @@ class button():
             }
         }
 
-        self.frame = LabelFrame(Fen, text = "Button", width = 180, height = 180) # On créer une sous-fenêtre
+        self.frame = LabelFrame(Fen, text = "Bouton", width = 180, height = 180, borderwidth = 4) # On créer une sous-fenêtre
         self.frame.grid(row = 2, column = 3, sticky = "NEWS") # On l'affiche
 
         self.frame.grid_propagate(0) # Force le LabelFrame à ne pas changer de taille
