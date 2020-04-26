@@ -5,12 +5,15 @@ import pickle
 import json
 import random
 import math
+import time
 from PIL import Image, ImageTk
 
 ########## constante ###########
 PATH_MODULE = "./module/"
 PATH_ASSETS = "./assets/"
+PATH_HISTORY = "./history/"
 
+if not(os.path.exists(PATH_HISTORY)): os.makedirs(PATH_HISTORY)
 ######## initialisation ########
 Fen = Tk()
 Fen.resizable(width = False, height = False)
@@ -36,6 +39,7 @@ class AppClass(): # Classe du "moteur" du jeu
 			"Lancer" : self.start,
 			"Option" : self.settings,
 			"Mode Infini": self.start_infinity_mode,
+			"Historique": self.history,
 			"Reinit. Option.": self.confirm_reinit_option,
 			"Quitter" : self.leave,
 		} # On créer un dictionnaire qui associe toute les options proposé à leur fonction respective.
@@ -66,6 +70,12 @@ class AppClass(): # Classe du "moteur" du jeu
 
 
 	def start(self):
+		if not(self.InfinityMode):
+			self.seed = random.randint(-10**10, 10**10) # On défini la seed afin de pouvoir la sauvegarder pour l'historique.
+			self.mode = "Classique"
+			self.start_time = time.time()
+			self.mod_des = 0
+
 		classModule["simon"].bind(UpCmd = "pass", DownCmd = "pass", LeftCmd = "pass", RightCmd = "pass")
 		self.Life = self.config["Vie"]["Value"] # On initialise le nombre de vie comme indiqué dans les paramètres
 
@@ -77,8 +87,153 @@ class AppClass(): # Classe du "moteur" du jeu
 		# Démmaré un chrono
 
 	def start_infinity_mode(self):
+		self.seed = random.randint(-10**10, 10**10)
+		self.mode = "Infinity"
+		self.start_time = time.time()
+		self.mod_des = 0
+
 		self.InfinityMode = True
 		self.start()
+
+
+	def history(self, selected = 0): # Menu des fichiers .history
+		ListFileHistory = list(reversed(os.listdir(PATH_HISTORY)))
+		if len(ListFileHistory) == 0:
+			self.MainMenu(selected = 3)
+			return 0
+
+		selected_name = ListFileHistory[selected]
+
+		selected_name_show = selected_name.replace(" ", "\n").replace(".history", "") # On l'affiche sur deux lignes et on retire l'extension
+		selected_name_show = [c for c in selected_name_show] # On converti le texte en liste de caractère
+		selected_name_show.insert(2, "/") # séparation jour / mois
+		selected_name_show.insert(5, "/") # séparation mois / année
+		selected_name_show.insert(13, ":") # séparation heure / minute
+		selected_name_show.insert(16, ":") # séparation minute / seconde
+		selected_name_show = "".join(selected_name_show)
+
+		prefix = "< "
+		suffix = " >"
+
+		if selected == 0:
+			func_up = "pass" # Si on est à la première option, ne fait rien
+			prefix = "  "
+
+		else: func_up = lambda: self.history(selected = selected - 1) # sinon, remonte
+
+		if selected == len(ListFileHistory) - 1:
+			func_down = "pass" # Si on est à la dernière option, ne fait rien
+			suffix = "  "
+
+		else: func_down = lambda: self.history(selected = selected + 1) # sinon, descend
+
+		classModule["display"].write(prefix + selected_name_show + suffix) # On affiche le texte sur l'écran
+
+		func_right = lambda: self.history_show(selected_name = selected_name) # Renvoie la fonction associé à l'option selectionné
+		func_left = lambda: self.MainMenu(selected = 3)
+
+		classModule["simon"].bind(UpCmd = func_up, DownCmd = func_down, LeftCmd = func_left, RightCmd = func_right)
+
+
+	def history_show(self, selected = 0, selected_name = None): # Menu pour afficher le contenu des fichiers .history
+		with open(PATH_HISTORY + selected_name, "rb") as File:
+			StatHistory = pickle.load(File)
+
+		StatHistoryKeys = list(StatHistory.keys())
+
+		StatName = StatHistoryKeys[selected]
+		StatData = StatHistory[StatName]
+
+		prefix = "< "
+		suffix = " >"
+
+		if selected == 0:
+			func_up = "pass" # Si on est à la première option, ne fait rien
+			prefix = "  "
+
+		else: func_up = lambda: self.history_show(selected = selected - 1, selected_name = selected_name) # sinon, remonte
+
+		if selected == len(StatHistory) - 1:
+			func_down = "pass" # Si on est à la dernière option, ne fait rien
+			suffix = "  "
+
+
+		else: func_down = lambda: self.history_show(selected = selected + 1, selected_name = selected_name) # sinon, descend
+
+		if StatName == "Paramètre": classModule["display"].write(prefix + StatName + "\n" + "Droite pour voir" + suffix)
+		else: classModule["display"].write(prefix + StatName + "\n" + str(StatData) + suffix) # On affiche le texte sur l'écran
+
+		if StatName == "Paramètre": func_right = lambda: self.history_show_settings(selected = 0, selected_name = selected_name) # func_right = lambda: self.modif_settings(selected_name = selected_name) # Renvoie la fonction associé à l'option selectionné
+		elif StatName == "Archiver": func_right = lambda: self.SwitchArchive(selected = selected, selected_name = selected_name)
+		elif StatName == "Effacer": func_right = lambda: self.confirm_delete_history(selected_name = selected_name)
+		else: func_right = "pass"
+
+		ListFileHistory = list(reversed(os.listdir(PATH_HISTORY)))
+		func_left = lambda: self.history(selected = ListFileHistory.index(selected_name))
+
+		classModule["simon"].bind(UpCmd = func_up, DownCmd = func_down, LeftCmd = func_left, RightCmd = func_right)
+
+
+	def confirm_delete_history(self, selected_name):
+		classModule["display"].write("Êtes-vous sur de\nvouloir effacer ?")
+
+		with open(PATH_HISTORY + selected_name, "rb") as File:
+			StatHistory = pickle.load(File)
+
+		cancel = lambda: self.history_show(selected = list(StatHistory.keys()).index("Effacer"))
+		confirm = lambda: self.delete_history(selected_name = selected_name)
+		classModule["simon"].bind(UpCmd = cancel, DownCmd = cancel, LeftCmd = cancel, RightCmd = confirm)
+
+
+	def delete_history(self, selected_name):
+		os.remove(PATH_HISTORY + selected_name)
+		self.history()
+
+
+	def SwitchArchive(self, selected, selected_name):
+		with open(PATH_HISTORY + selected_name, "rb") as File:
+			StatHistory = pickle.load(File)
+
+		if StatHistory["Archiver"] == "Oui": StatHistory["Archiver"] = "Non"
+		else: StatHistory["Archiver"] = "Oui"
+
+		with open(PATH_HISTORY + selected_name, "wb") as File:
+			pickle.dump(StatHistory, File)
+
+		self.history_show(selected = selected, selected_name = selected_name)
+
+
+	def history_show_settings(self, selected = 0, selected_name = None): # Afficher les paramètres lors d'une partie stocké dans l'historique
+		with open(PATH_HISTORY + selected_name, "rb") as File:
+			StatHistory = pickle.load(File)
+
+		StatHistorySettings = StatHistory["Paramètre"]
+		StatHistorySettingsKeys = list(StatHistorySettings.keys())
+		StatSettingsName = StatHistorySettingsKeys[selected]
+		StatSettingsData = StatHistorySettings[StatSettingsName]["Value"]
+
+		prefix = "< "
+		suffix = " >"
+
+		if selected == 0:
+			func_up = "pass" # Si on est à la première option, ne fait rien
+			prefix = "  "
+
+		else: func_up = lambda: self.history_show_settings(selected = selected - 1, selected_name = selected_name) # sinon, remonte
+
+		if selected == len(StatHistorySettings) - 1: # Pour éviter que _Protected s'affiche
+			func_down = "pass" # Si on est à la dernière option, ne fait rien
+			suffix = "  "
+
+		else: func_down = lambda: self.history_show_settings(selected = selected + 1, selected_name = selected_name) # sinon, descend
+
+		classModule["display"].write(prefix + StatSettingsName + "\n" + str(StatSettingsData) + suffix) # On affiche le texte sur l'écran
+
+		func_right = lambda: "pass"
+		func_left = lambda: self.history_show(selected = list(StatHistory.keys()).index("Paramètre"), selected_name = selected_name)
+
+		classModule["simon"].bind(UpCmd = func_up, DownCmd = func_down, LeftCmd = func_left, RightCmd = func_right)
+
 
 
 
@@ -159,7 +314,7 @@ class AppClass(): # Classe du "moteur" du jeu
 
 	def confirm_reinit_option(self):
 		classModule["display"].write("Êtes-vous sur de\nvouloir réinitialiser ?")
-		cancel = lambda: self.MainMenu(selected = 2)
+		cancel = lambda: self.MainMenu(selected = 4)
 		confirm = lambda: self.reinit_option(mainmenu_return = True)
 		classModule["simon"].bind(UpCmd = cancel, DownCmd = cancel, LeftCmd = cancel, RightCmd = confirm)
 

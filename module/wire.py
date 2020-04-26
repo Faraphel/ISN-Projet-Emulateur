@@ -101,7 +101,7 @@ class wire():
 
             if type(self.rules[Difficulty][wire][lit_wire]) == str: # Si la condition est un texte (donc du type LED StatutDeLaLED):
                 condition = self.rules[Difficulty][wire][lit_wire].split(" ")
-                if self.dico_wire[wire]["CUT"] != (self.dico_wire[condition[0]]["LIT"] != condition[1]): # Si la règle n'est pas respecté
+                if self.dico_wire[wire]["CUT"] != (self.dico_wire[condition[0]]["LIT"] == condition[1]): # Si la règle n'est pas respecté
                     self.wire_errorTotal += 1
 
             else:

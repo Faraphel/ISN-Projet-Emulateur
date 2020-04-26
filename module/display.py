@@ -61,6 +61,7 @@ class display():
 
     def checkDefuse(self):
         self.time += App.config["Bonus de temps"]["Value"]
+        App.mod_des += 1
 
         _Stop = 0
         for module in classModule:
@@ -69,6 +70,7 @@ class display():
 
         if _Stop <= App.config["Module négli."]["Value"]: # Si tout les modules sont désamorcé
             self.write(random.choice(["GG", "Bravo", "Félicitation"]))
+            self.Win = "Gagné"
             self.reset_all()
 
         else:
@@ -90,6 +92,7 @@ class display():
 
         self.InitInfinity = False
         App.InfinityMode = False
+        self.Win = "Perdu"
         self.reset_all()
 
 
@@ -103,10 +106,42 @@ class display():
             Fen.after_cancel(self.chrono_event) # On désactive le chrono
             self.label.config(foreground = "black", background = "SystemButtonFace")
 
+            duration = time.time() - App.start_time
+            duration_min, duration_sec = duration // 60, duration % 60
+
+            with open(PATH_HISTORY + time.strftime("%d%m%Y %H%M%S") + ".history", "wb") as File:
+
+                pickle.dump({
+                "Seed": App.seed,
+                "Mode": App.mode,
+                "Partie": self.Win,
+                "Durée": "%02i:%02i" % (duration_min, duration_sec),
+                "Mod. Des.": App.mod_des,
+                "Mod. Des. / min.": round(App.mod_des / (duration / 60), 1),
+                "Paramètre": App.config,
+                "Archiver": "Non",
+                "Effacer": ""
+                }, File)
+
+
+
+            ListFileHistory = os.listdir(PATH_HISTORY)
+            Max_file_save = App.config["Max. Score sauv."]["Value"]
+
+            if len(ListFileHistory) > Max_file_save:
+                for file in ListFileHistory:
+
+                    with open(PATH_HISTORY + file, "rb") as File: StatHistory = pickle.load(File)
+                    if StatHistory["Archiver"] == "Non":
+                        os.remove(PATH_HISTORY + file)
+                        break
+
             Fen.after(7500, lambda: App.MainMenu()) # On laisse le joueur devant le message de victoire / défaite pendant 7.5 secondes
+
 
         else: # Si l'on est en mode infini
             self.InitInfinity = True # On a déjà fini le jeu une fois
             Fen.after(1000, App.start) # On relance le jeu
+
 
 classModule["display"] = display()

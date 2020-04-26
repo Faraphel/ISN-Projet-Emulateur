@@ -74,6 +74,7 @@ class button():
 
         if not(_Stop):
             self.defuse = True
+            self.big_but.config(command = "pass")
             classModule["display"].checkDefuse()
 
         else:
