@@ -13,7 +13,22 @@ PATH_MODULE = "./module/"
 PATH_ASSETS = "./assets/"
 PATH_HISTORY = "./history/"
 
+##### création de fichier ######
 if not(os.path.exists(PATH_HISTORY)): os.makedirs(PATH_HISTORY)
+
+if not(os.path.exists("./statistic.pickle")):
+	with open("./statistic.pickle", "wb") as File:
+		pickle.dump({
+			"Mod. Dés. Total":	0,
+			"Temps de jeu":		"00:00", # s
+			"Mod. Des. / min.":	"0/min", # mod / min
+			"Partie Classique": 0,
+			"Partie Infini": 	0,
+			"Partie total":		0,
+			"Classique gagné":	"0 (0 %)",
+			"Classique perdu":	"0 (0 %)"
+		}, File)
+
 ######## initialisation ########
 Fen = Tk()
 Fen.resizable(width = False, height = False)
@@ -37,9 +52,10 @@ class AppClass(): # Classe du "moteur" du jeu
 
 		MainMenu_Option = {
 			"Lancer" : self.start,
-			"Option" : self.settings,
 			"Mode Infini": self.start_infinity_mode,
+			"Option" : self.settings,
 			"Historique": self.history,
+			"Statistique": self.statistic,
 			"Reinit. Option.": self.confirm_reinit_option,
 			"Quitter" : self.leave,
 		} # On créer un dictionnaire qui associe toute les options proposé à leur fonction respective.
@@ -68,13 +84,19 @@ class AppClass(): # Classe du "moteur" du jeu
 		classModule["simon"].bind(UpCmd = func_up, DownCmd = func_down, LeftCmd = "pass", RightCmd = func_right)
 
 
+	def pre_start(self):
+		with open("./statistic.pickle", "rb") as File:
+			self.StatDico = pickle.load(File)
+
+		self.seed = random.randint(-10**10, 10**10) # On défini la seed afin de pouvoir la sauvegarder pour l'historique.
+		self.mode = "Classique"
+		self.start_time = time.time()
+		self.mod_des = 0
+
 
 	def start(self):
 		if not(self.InfinityMode):
-			self.seed = random.randint(-10**10, 10**10) # On défini la seed afin de pouvoir la sauvegarder pour l'historique.
-			self.mode = "Classique"
-			self.start_time = time.time()
-			self.mod_des = 0
+			self.pre_start()
 
 		classModule["simon"].bind(UpCmd = "pass", DownCmd = "pass", LeftCmd = "pass", RightCmd = "pass")
 		self.Life = self.config["Vie"]["Value"] # On initialise le nombre de vie comme indiqué dans les paramètres
@@ -87,11 +109,8 @@ class AppClass(): # Classe du "moteur" du jeu
 		# Démmaré un chrono
 
 	def start_infinity_mode(self):
-		self.seed = random.randint(-10**10, 10**10)
+		self.pre_start()
 		self.mode = "Infinity"
-		self.start_time = time.time()
-		self.mod_des = 0
-
 		self.InfinityMode = True
 		self.start()
 
@@ -236,6 +255,37 @@ class AppClass(): # Classe du "moteur" du jeu
 
 
 
+	def statistic(self, selected = 0):
+		with open("./statistic.pickle", "rb") as File:
+			StatDico = pickle.load(File)
+
+		StatDicoKeys = list(StatDico.keys())
+		StatName = StatDicoKeys[selected]
+		StatData = StatDico[StatName]
+
+		prefix = "< "
+		suffix = " >"
+
+		if selected == 0:
+			func_up = "pass" # Si on est à la première option, ne fait rien
+			prefix = "  "
+
+		else: func_up = lambda: self.statistic(selected = selected - 1) # sinon, remonte
+
+		if selected == len(StatDico) - 1: # Pour éviter que _Protected s'affiche
+			func_down = "pass" # Si on est à la dernière option, ne fait rien
+			suffix = "  "
+
+		else: func_down = lambda: self.statistic(selected = selected + 1) # sinon, descend
+
+		classModule["display"].write(prefix + StatName + "\n" + str(StatData) + suffix) # On affiche le texte sur l'écran
+
+		func_right = lambda: "pass"
+		func_left = lambda: self.MainMenu(selected = 4)
+
+		classModule["simon"].bind(UpCmd = func_up, DownCmd = func_down, LeftCmd = func_left, RightCmd = func_right)
+
+
 
 	def settings(self, selected = 0):
 		 # On créer un dictionnaire qui associe toute les options proposé à leur fonction respective.
@@ -261,7 +311,7 @@ class AppClass(): # Classe du "moteur" du jeu
 
 		selected_value = self.config[selected_name]["Available"].index(self.config[selected_name]["Value"]) # Valeur de l'index de la valeur déjà défini dans les paramètres
 		func_right = lambda: self.modif_settings(selected_name = selected_name, selected = selected_value) # Renvoie la fonction associé à l'option selectionné
-		func_left = lambda: self.MainMenu(selected = 1)
+		func_left = lambda: self.MainMenu(selected = 2)
 
 		classModule["simon"].bind(UpCmd = func_up, DownCmd = func_down, LeftCmd = func_left, RightCmd = func_right)
 
@@ -314,7 +364,7 @@ class AppClass(): # Classe du "moteur" du jeu
 
 	def confirm_reinit_option(self):
 		classModule["display"].write("Êtes-vous sur de\nvouloir réinitialiser ?")
-		cancel = lambda: self.MainMenu(selected = 4)
+		cancel = lambda: self.MainMenu(selected = 5)
 		confirm = lambda: self.reinit_option(mainmenu_return = True)
 		classModule["simon"].bind(UpCmd = cancel, DownCmd = cancel, LeftCmd = cancel, RightCmd = confirm)
 
@@ -326,7 +376,7 @@ class AppClass(): # Classe du "moteur" du jeu
 		with open(r"config.pickle","wb") as file: # Recréer le .pickle
 			pickle.dump(self.config, file)
 
-		if mainmenu_return: self.MainMenu(selected = 2)
+		if mainmenu_return: self.MainMenu(selected = 5)
 
 
 	def leave(self):

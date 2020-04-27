@@ -109,6 +109,7 @@ class display():
             duration = time.time() - App.start_time
             duration_min, duration_sec = duration // 60, duration % 60
 
+            ############################## HISTORIQUE ##############################
             with open(PATH_HISTORY + time.strftime("%d%m%Y %H%M%S") + ".history", "wb") as File:
 
                 pickle.dump({
@@ -135,6 +136,38 @@ class display():
                     if StatHistory["Archiver"] == "Non":
                         os.remove(PATH_HISTORY + file)
                         break
+
+            ############################## STATISTIQUE ##############################
+            App.StatDico["Mod. Dés. Total"] += App.mod_des
+            total_min, total_sec = App.StatDico["Temps de jeu"].split(":")
+            App.StatDico["Temps de jeu"] = "%02i:%02i" % (int(total_min) + duration_min, int(total_sec) + duration_sec)
+            total_min, total_sec = App.StatDico["Temps de jeu"].split(":") # On actualise ces variables car nécéssaire pour d'autre stat
+
+
+            total_Mod_Des_min = int(App.StatDico["Mod. Des. / min."].split("/")[0])
+            App.StatDico["Mod. Des. / min."] = "%i/min" % round(App.StatDico["Mod. Dés. Total"] / (int(total_min) + (int(total_sec) / 60)), 1)
+
+
+            App.StatDico["Partie total"] += 1
+
+            if App.mode == "Classique":
+                App.StatDico["Partie Classique"] += 1
+                casual_win = int(App.StatDico["Classique gagné"].split(" ")[0])
+                casual_lose = int(App.StatDico["Classique perdu"].split(" ")[0])
+
+                if self.Win == "Gagné": casual_win += 1
+                else: casual_lose += 1
+
+                App.StatDico["Classique gagné"] = "%i (%i %%)" % (casual_win, int((casual_win / App.StatDico["Partie total"]) * 100))
+                App.StatDico["Classique perdu"] = "%i (%i %%)" % (casual_lose, int((casual_lose / App.StatDico["Partie total"]) * 100))
+
+            elif App.mode == "Infinity":
+                App.StatDico["Partie Infini"] += 1
+
+
+            with open("./statistic.pickle", "wb") as File:
+                pickle.dump(App.StatDico, File)
+
 
             Fen.after(7500, lambda: App.MainMenu()) # On laisse le joueur devant le message de victoire / défaite pendant 7.5 secondes
 
