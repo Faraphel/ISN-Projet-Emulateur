@@ -48,8 +48,26 @@ class AppClass(): # Classe du "moteur" du jeu
 		self.MainMenu()
 		self.InfinityMode = False
 
-	def MainMenu(self, selected = 0): # Niveau 1
+	def menu(self, selected_name = "", selected = 0, ListKeys = [], func_navigation = None, text = "", func_left = None, func_right = None):
+		prefix = "\u2191 "
+		suffix = " \u2193"
 
+		if selected == 0:
+			func_up = "pass" # Si on est à la première option, ne fait rien
+			prefix = "  "
+		else: func_up = lambda: func_navigation(selected_name = selected_name, selected = selected - 1)
+
+		if selected == len(ListKeys) - 1:
+			func_down = "pass" # Si on est à la dernière option, ne fait rien
+			suffix = "  "
+		else: func_down = lambda: func_navigation(selected_name = selected_name, selected = selected + 1)
+
+		classModule["display"].write(prefix + str(text) + suffix)
+
+		classModule["simon"].bind(UpCmd = func_up, DownCmd = func_down, LeftCmd = func_left, RightCmd = func_right)
+
+
+	def MainMenu(self, selected = 0, selected_name = None): # Niveau 1
 		MainMenu_Option = {
 			"Lancer" : self.start,
 			"Mode Infini": self.start_infinity_mode,
@@ -59,44 +77,34 @@ class AppClass(): # Classe du "moteur" du jeu
 			"Reinit. Option.": self.confirm_reinit_option,
 			"Quitter" : self.leave,
 		} # On créer un dictionnaire qui associe toute les options proposé à leur fonction respective.
-		MainMenu_Keys = list(MainMenu_Option.keys()) # On créer une liste qui ne contient que les clé du dictionnaire, permettant d'utiliser des index numériques.
+		ListKeys = list(MainMenu_Option.keys()) # On créer une liste qui ne contient que les clé du dictionnaire, permettant d'utiliser des index numériques.
 
-		prefix = "< "
-		suffix = " >"
-
-		if selected == 0:
-			func_up = "pass" # Si on est à la première option, ne fait rien
-			prefix = "  "
-
-		else: func_up = lambda: self.MainMenu(selected = selected - 1) # sinon, remonte
-
-		if selected == len(MainMenu_Keys) - 1:
-			func_down = "pass" # Si on est à la dernière option, ne fait rien
-			suffix = "  "
-
-		else: func_down = lambda: self.MainMenu(selected = selected + 1) # sinon, descend
-
-		func_right = MainMenu_Option[MainMenu_Keys[selected]] # Renvoie la fonction associé à l'option selectionné
-
-		classModule["display"].write(prefix + MainMenu_Keys[selected] + suffix) # On affiche le texte sur l'écran
+		self.menu(
+				selected_name = selected_name,
+				selected = selected,
+				ListKeys = ListKeys,
+				func_navigation = self.MainMenu,
+				text = ListKeys[selected],
+				func_right = MainMenu_Option[ListKeys[selected]],
+				func_left = "pass"
+			)
 
 
-		classModule["simon"].bind(UpCmd = func_up, DownCmd = func_down, LeftCmd = "pass", RightCmd = func_right)
-
-
-	def pre_start(self):
+	def pre_start(self, seed = None):
 		with open("./statistic.pickle", "rb") as File:
 			self.StatDico = pickle.load(File)
 
-		self.seed = random.randint(-10**10, 10**10) # On défini la seed afin de pouvoir la sauvegarder pour l'historique.
+		if seed == None: self.seed = random.randint(-10**10, 10**10) # On défini la seed afin de pouvoir la sauvegarder pour l'historique.
+		else: self.seed = seed
+		random.seed(self.seed)
+
 		self.mode = "Classique"
 		self.start_time = time.time()
 		self.mod_des = 0
 
-
-	def start(self):
+	def start(self, seed = None):
 		if not(self.InfinityMode):
-			self.pre_start()
+			self.pre_start(seed = seed)
 
 		classModule["simon"].bind(UpCmd = "pass", DownCmd = "pass", LeftCmd = "pass", RightCmd = "pass")
 		self.Life = self.config["Vie"]["Value"] # On initialise le nombre de vie comme indiqué dans les paramètres
@@ -108,14 +116,14 @@ class AppClass(): # Classe du "moteur" du jeu
 		# Initilisalisé tout les modules
 		# Démmaré un chrono
 
-	def start_infinity_mode(self):
-		self.pre_start()
+	def start_infinity_mode(self, seed = None):
+		self.pre_start(seed = seed)
 		self.mode = "Infinity"
 		self.InfinityMode = True
 		self.start()
 
 
-	def history(self, selected = 0): # Menu des fichiers .history
+	def history(self, selected = 0, selected_name = None): # Menu des fichiers .history
 		ListFileHistory = list(reversed(os.listdir(PATH_HISTORY)))
 		if len(ListFileHistory) == 0:
 			self.MainMenu(selected = 3)
@@ -131,66 +139,49 @@ class AppClass(): # Classe du "moteur" du jeu
 		selected_name_show.insert(16, ":") # séparation minute / seconde
 		selected_name_show = "".join(selected_name_show)
 
-		prefix = "< "
-		suffix = " >"
-
-		if selected == 0:
-			func_up = "pass" # Si on est à la première option, ne fait rien
-			prefix = "  "
-
-		else: func_up = lambda: self.history(selected = selected - 1) # sinon, remonte
-
-		if selected == len(ListFileHistory) - 1:
-			func_down = "pass" # Si on est à la dernière option, ne fait rien
-			suffix = "  "
-
-		else: func_down = lambda: self.history(selected = selected + 1) # sinon, descend
-
-		classModule["display"].write(prefix + selected_name_show + suffix) # On affiche le texte sur l'écran
-
-		func_right = lambda: self.history_show(selected_name = selected_name) # Renvoie la fonction associé à l'option selectionné
-		func_left = lambda: self.MainMenu(selected = 3)
-
-		classModule["simon"].bind(UpCmd = func_up, DownCmd = func_down, LeftCmd = func_left, RightCmd = func_right)
+		self.menu(
+				selected_name = selected_name,
+				selected = selected,
+				ListKeys = ListFileHistory,
+				func_navigation = self.history,
+				text = selected_name_show,
+				func_right = lambda: self.history_show(selected_name = selected_name),
+				func_left = lambda: self.MainMenu(selected = 3)
+			)
 
 
 	def history_show(self, selected = 0, selected_name = None): # Menu pour afficher le contenu des fichiers .history
 		with open(PATH_HISTORY + selected_name, "rb") as File:
 			StatHistory = pickle.load(File)
 
-		StatHistoryKeys = list(StatHistory.keys())
+		ListKeys = list(StatHistory.keys())
 
-		StatName = StatHistoryKeys[selected]
+		StatName = ListKeys[selected]
 		StatData = StatHistory[StatName]
 
-		prefix = "< "
-		suffix = " >"
+		if StatName == "Paramètre": text = StatName + "\n" + "Droite pour voir"
+		else: text = StatName + "\n" + str(StatData)
 
-		if selected == 0:
-			func_up = "pass" # Si on est à la première option, ne fait rien
-			prefix = "  "
+		if StatName == "Paramètre": 	func_right = lambda: self.history_show_settings(selected = 0, selected_name = selected_name) # Renvoie la fonction associé à l'option selectionné
+		elif StatName == "Archiver": 	func_right = lambda: self.SwitchArchive(selected = selected, selected_name = selected_name)
+		elif StatName == "Effacer": 	func_right = lambda: self.confirm_delete_history(selected_name = selected_name)
+		elif StatName == "Seed":
+			if StatHistory["Mode"] == "Classique": 	func_right = lambda: self.start(seed = StatData)
+			elif StatHistory["Mode"] == "Infinity": func_right = lambda: self.start_infinity_mode(seed = StatData)
 
-		else: func_up = lambda: self.history_show(selected = selected - 1, selected_name = selected_name) # sinon, remonte
-
-		if selected == len(StatHistory) - 1:
-			func_down = "pass" # Si on est à la dernière option, ne fait rien
-			suffix = "  "
-
-
-		else: func_down = lambda: self.history_show(selected = selected + 1, selected_name = selected_name) # sinon, descend
-
-		if StatName == "Paramètre": classModule["display"].write(prefix + StatName + "\n" + "Droite pour voir" + suffix)
-		else: classModule["display"].write(prefix + StatName + "\n" + str(StatData) + suffix) # On affiche le texte sur l'écran
-
-		if StatName == "Paramètre": func_right = lambda: self.history_show_settings(selected = 0, selected_name = selected_name) # func_right = lambda: self.modif_settings(selected_name = selected_name) # Renvoie la fonction associé à l'option selectionné
-		elif StatName == "Archiver": func_right = lambda: self.SwitchArchive(selected = selected, selected_name = selected_name)
-		elif StatName == "Effacer": func_right = lambda: self.confirm_delete_history(selected_name = selected_name)
 		else: func_right = "pass"
 
 		ListFileHistory = list(reversed(os.listdir(PATH_HISTORY)))
-		func_left = lambda: self.history(selected = ListFileHistory.index(selected_name))
 
-		classModule["simon"].bind(UpCmd = func_up, DownCmd = func_down, LeftCmd = func_left, RightCmd = func_right)
+		self.menu(
+				selected_name = selected_name,
+				selected = selected,
+				ListKeys = ListKeys,
+				func_navigation = self.history_show,
+				text = text,
+				func_right = func_right,
+				func_left = lambda: self.history(selected = ListFileHistory.index(selected_name))
+			)
 
 
 	def confirm_delete_history(self, selected_name):
@@ -227,123 +218,72 @@ class AppClass(): # Classe du "moteur" du jeu
 			StatHistory = pickle.load(File)
 
 		StatHistorySettings = StatHistory["Paramètre"]
-		StatHistorySettingsKeys = list(StatHistorySettings.keys())
-		StatSettingsName = StatHistorySettingsKeys[selected]
+		ListKeys = list(StatHistorySettings.keys())
+		StatSettingsName = ListKeys[selected]
 		StatSettingsData = StatHistorySettings[StatSettingsName]["Value"]
 
-		prefix = "< "
-		suffix = " >"
-
-		if selected == 0:
-			func_up = "pass" # Si on est à la première option, ne fait rien
-			prefix = "  "
-
-		else: func_up = lambda: self.history_show_settings(selected = selected - 1, selected_name = selected_name) # sinon, remonte
-
-		if selected == len(StatHistorySettings) - 1: # Pour éviter que _Protected s'affiche
-			func_down = "pass" # Si on est à la dernière option, ne fait rien
-			suffix = "  "
-
-		else: func_down = lambda: self.history_show_settings(selected = selected + 1, selected_name = selected_name) # sinon, descend
-
-		classModule["display"].write(prefix + StatSettingsName + "\n" + str(StatSettingsData) + suffix) # On affiche le texte sur l'écran
-
-		func_right = lambda: "pass"
-		func_left = lambda: self.history_show(selected = list(StatHistory.keys()).index("Paramètre"), selected_name = selected_name)
-
-		classModule["simon"].bind(UpCmd = func_up, DownCmd = func_down, LeftCmd = func_left, RightCmd = func_right)
+		self.menu(
+				selected_name = selected_name,
+				selected = selected,
+				ListKeys = ListKeys,
+				func_navigation = self.history_show_settings,
+				text = StatSettingsName + "\n" + str(StatSettingsData),
+				func_right = lambda: "pass",
+				func_left = lambda: self.history_show(selected = list(StatHistory.keys()).index("Paramètre"), selected_name = selected_name)
+			)
 
 
-
-	def statistic(self, selected = 0):
+	def statistic(self, selected = 0, selected_name = None):
 		with open("./statistic.pickle", "rb") as File:
 			StatDico = pickle.load(File)
 
-		StatDicoKeys = list(StatDico.keys())
-		StatName = StatDicoKeys[selected]
+		ListKeys = list(StatDico.keys())
+		StatName = ListKeys[selected]
 		StatData = StatDico[StatName]
 
-		prefix = "< "
-		suffix = " >"
-
-		if selected == 0:
-			func_up = "pass" # Si on est à la première option, ne fait rien
-			prefix = "  "
-
-		else: func_up = lambda: self.statistic(selected = selected - 1) # sinon, remonte
-
-		if selected == len(StatDico) - 1: # Pour éviter que _Protected s'affiche
-			func_down = "pass" # Si on est à la dernière option, ne fait rien
-			suffix = "  "
-
-		else: func_down = lambda: self.statistic(selected = selected + 1) # sinon, descend
-
-		classModule["display"].write(prefix + StatName + "\n" + str(StatData) + suffix) # On affiche le texte sur l'écran
-
-		func_right = lambda: "pass"
-		func_left = lambda: self.MainMenu(selected = 4)
-
-		classModule["simon"].bind(UpCmd = func_up, DownCmd = func_down, LeftCmd = func_left, RightCmd = func_right)
+		self.menu(
+				selected_name = selected_name,
+				selected = selected,
+				ListKeys = ListKeys,
+				func_navigation = self.statistic,
+				text = StatName + "\n" + str(StatData),
+				func_right = lambda: "pass",
+				func_left = lambda: self.MainMenu(selected = 4)
+			)
 
 
-
-	def settings(self, selected = 0):
+	def settings(self, selected = 0, selected_name = None): # selected_name n'est pas utilisé, mais évite une erreur
 		 # On créer un dictionnaire qui associe toute les options proposé à leur fonction respective.
-		SettingsMenu_Keys = list(self.config.keys()) # On créer une liste qui ne contient que les clé du dictionnaire, permettant d'utiliser des index numériques.
-		selected_name = SettingsMenu_Keys[selected]
-
-		prefix = "< "
-		suffix = " >"
-
-		if selected == 0:
-			func_up = "pass" # Si on est à la première option, ne fait rien
-			prefix = "  "
-
-		else: func_up = lambda: self.settings(selected = selected - 1) # sinon, remonte
-
-		if selected == len(SettingsMenu_Keys) - 1:
-			func_down = "pass" # Si on est à la dernière option, ne fait rien
-			suffix = "  "
-
-		else: func_down = lambda: self.settings(selected = selected + 1) # sinon, descend
-
-		classModule["display"].write(prefix + selected_name + suffix) # On affiche le texte sur l'écran
+		ListKeys = list(self.config.keys()) # On créer une liste qui ne contient que les clé du dictionnaire, permettant d'utiliser des index numériques.
+		selected_name = ListKeys[selected]
 
 		selected_value = self.config[selected_name]["Available"].index(self.config[selected_name]["Value"]) # Valeur de l'index de la valeur déjà défini dans les paramètres
-		func_right = lambda: self.modif_settings(selected_name = selected_name, selected = selected_value) # Renvoie la fonction associé à l'option selectionné
-		func_left = lambda: self.MainMenu(selected = 2)
 
-		classModule["simon"].bind(UpCmd = func_up, DownCmd = func_down, LeftCmd = func_left, RightCmd = func_right)
+		self.menu(
+				selected_name = selected_name,
+				selected = selected,
+				ListKeys = ListKeys,
+				func_navigation = self.settings,
+				text = selected_name,
+				func_right = lambda: self.modif_settings(selected_name = selected_name, selected = selected_value),
+				func_left = lambda: self.MainMenu(selected = 2)
+			)
 
 
 	def modif_settings(self, selected_name, selected = 0): # selected_name -> nom de la variable que l'on change # selected -> valeur actuellement sélectionné
 		 # On créer une liste qui ne contient que les clé du dictionnaire, permettant d'utiliser des index numériques.
-		ModifSettingsMenu_Keys = self.config[selected_name]["Available"]
+		ListKeys = self.config[selected_name]["Available"]
 
-		prefix = "< "
-		suffix = " >"
+		self.menu(
+				selected_name = selected_name,
+				selected = selected,
+				ListKeys = ListKeys,
+				func_navigation = self.modif_settings,
+				text = str(ListKeys[selected]),
+				func_right = lambda: self.save_settings(selected_name = selected_name, selected = ListKeys[selected]),
+				func_left = lambda: self.settings(selected = list(self.config.keys()).index(selected_name))
+			) # On renvoie le joueur sur le menu de l'option qu'il est en train d'éditer
 
-		if selected == 0:
-			func_up = "pass" # Si on est à la première option, ne fait rien
-			prefix = "  "
-
-		else: func_up = lambda: self.modif_settings(selected_name = selected_name, selected = selected - 1)
-
-		if selected == len(ModifSettingsMenu_Keys) - 1:
-			func_down = "pass" # Si on est à la dernière option, ne fait rien
-			suffix = "  "
-
-		else: func_down = lambda: self.modif_settings(selected_name = selected_name, selected = selected + 1) # sinon, descend
-
-		classModule["display"].write(prefix + str(ModifSettingsMenu_Keys[selected]) + suffix) # On affiche le texte sur l'écran
-
-
-		func_right = lambda: self.save_settings(selected_name = selected_name, selected = ModifSettingsMenu_Keys[selected])
-		func_left = lambda: self.settings(selected = list(self.config.keys()).index(selected_name)) # On renvoie le joueur sur le menu de l'option qu'il est en train d'éditer
-
-		classModule["simon"].bind(UpCmd = func_up, DownCmd = func_down, LeftCmd = func_left, RightCmd = func_right)
-
-		# + Bonus : afficher par défaut la valeur sur laquel le jeu est paramétrer
 
 	def save_settings(self, selected_name, selected):
 		self.config[selected_name]["Value"] = selected

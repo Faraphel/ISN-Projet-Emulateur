@@ -53,6 +53,18 @@ class simon():
         self.dico_but["Right"].config(command = RightCmd)
         self.dico_but["Down"].config(command = DownCmd)
 
+        if UpCmd != "pass": Fen.bind("<Up>", lambda x: UpCmd())
+        else: Fen.unbind("<Up>")
+
+        if LeftCmd != "pass": Fen.bind("<Left>", lambda x: LeftCmd())
+        else: Fen.unbind("<Left>")
+
+        if RightCmd != "pass": Fen.bind("<Right>", lambda x: RightCmd())
+        else: Fen.unbind("<Right>")
+
+        if DownCmd != "pass": Fen.bind("<Down>", lambda x: DownCmd())
+        else: Fen.unbind("<Down>")
+
 
     def reset_color(self):
         self.red_off_color = "indianred" # Couleur défini, peut être modifier par le mode daltonien

@@ -140,13 +140,13 @@ class display():
             ############################## STATISTIQUE ##############################
             App.StatDico["Mod. Dés. Total"] += App.mod_des
             total_min, total_sec = App.StatDico["Temps de jeu"].split(":")
-            App.StatDico["Temps de jeu"] = "%02i:%02i" % (int(total_min) + duration_min, int(total_sec) + duration_sec)
-            total_min, total_sec = App.StatDico["Temps de jeu"].split(":") # On actualise ces variables car nécéssaire pour d'autre stat
-
+            total_min, total_sec = int(total_min), int(total_sec) # On converti les valeurs en nombre
+            total_sec += int(total_min * 60 + duration) # On converti tout en seconde
+            total_min, total_sec = total_sec // 60, total_sec % 60 # On recalcul pour avoir les minutes et les secondes. Permet d'éviter de déborder sur les secondes (avoir 00:65 par exemple)
+            App.StatDico["Temps de jeu"] = "%02i:%02i" % (total_min, total_sec)
 
             total_Mod_Des_min = int(App.StatDico["Mod. Des. / min."].split("/")[0])
-            App.StatDico["Mod. Des. / min."] = "%i/min" % round(App.StatDico["Mod. Dés. Total"] / (int(total_min) + (int(total_sec) / 60)), 1)
-
+            App.StatDico["Mod. Des. / min."] = "%i/min" % round(App.StatDico["Mod. Dés. Total"] / (total_min + (total_sec / 60)), 1)
 
             App.StatDico["Partie total"] += 1
 
@@ -158,8 +158,8 @@ class display():
                 if self.Win == "Gagné": casual_win += 1
                 else: casual_lose += 1
 
-                App.StatDico["Classique gagné"] = "%i (%i %%)" % (casual_win, int((casual_win / App.StatDico["Partie total"]) * 100))
-                App.StatDico["Classique perdu"] = "%i (%i %%)" % (casual_lose, int((casual_lose / App.StatDico["Partie total"]) * 100))
+                App.StatDico["Classique gagné"] = "%i (%i %%)" % (casual_win, int((casual_win / App.StatDico["Partie Classique"]) * 100))
+                App.StatDico["Classique perdu"] = "%i (%i %%)" % (casual_lose, int((casual_lose / App.StatDico["Partie Classique"]) * 100))
 
             elif App.mode == "Infinity":
                 App.StatDico["Partie Infini"] += 1
