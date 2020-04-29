@@ -64,7 +64,7 @@ class button():
 
         if rules_chrono_split[0] != "None":
             if rules_chrono_split[1] == "any":
-                if not(rules_chrono_split[0] in str(minute) + str(second)):
+                if not(rules_chrono_split[0] in "%02i%02i" % (minute, second)):
                     _Stop = True
 
             if rules_chrono_split[1] == "sec":

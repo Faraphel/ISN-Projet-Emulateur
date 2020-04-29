@@ -55,17 +55,17 @@ class safe():
 
         # Cercle sur lequel va tourner le pic
 
-        for index in range(1, 5):
+        for index in range(4):
             self.canvas.create_arc( 2, self.size_canvas, # A(x, y)
                                     self.size_canvas, 2, # B(x, y)
 
-                                    start = 90 * (index), extent = 90, # ici en dégrée
+                                    start = 90 * (index + 1), extent = 90, # ici en dégrée
                                     fill = "lightgray", outline = "black", width = 1)
 
 
-            self.canvas.create_text((self.size_canvas / 2) + (self.size_canvas / 4.5) * round(math.cos((index - 1) * (math.pi / 2) + math.sqrt(2)/2 + math.pi/2)) + 2,
-                                    (self.size_canvas / 2) - (self.size_canvas / 4.5) * round(math.sin((index - 1) * (math.pi / 2) + math.sqrt(2)/2 + math.pi/2)) + 2,
-                                    text = str(index), font = ("Arial Black", 15), angle = 225 + 90 * (index - 1))
+            self.canvas.create_text((self.size_canvas / 2) + (self.size_canvas / 4.5) * round(math.cos((index) * (math.pi / 2) + math.sqrt(2)/2 + math.pi/2)) + 2,
+                                    (self.size_canvas / 2) - (self.size_canvas / 4.5) * round(math.sin((index) * (math.pi / 2) + math.sqrt(2)/2 + math.pi/2)) + 2,
+                                    text = str(index + 1), font = ("Arial Black", 15), angle = 225 + 90 * (index))
 
 
         ##########
