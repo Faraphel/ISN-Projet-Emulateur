@@ -39,7 +39,7 @@ class morse():
 
         self.SelectFen = Toplevel() # Créer une fenêtre secondaire.
         self.SelectFen.resizable(width = False, height = False)
-        self.SelectFen.iconbitmap(PATH_ASSETS + "icon.ico") # Change l'icone
+        self.SelectFen.iconphoto(False, ImageTk.PhotoImage(file = PATH_ASSETS + "icon.ico")) # Change l'icone
         self.SelectFen.title("Emulateur - Morse") # Change le titre
         self.SelectFen.protocol('WM_DELETE_WINDOW', lambda: "pass") # Rend la fenêtre non fermable
         self.HideSymbol()

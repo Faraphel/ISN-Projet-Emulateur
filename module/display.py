@@ -40,7 +40,7 @@ class display():
             else: self.label.config(foreground = "gold", background = "indianred")
 
         else:
-            self.label.config(foreground = "black", background = "SystemButtonFace")
+            self.label.config(foreground = "black", background = DEFAULT_BG_COLOR)
 
         if self.time >= 0: # Vérification que le joueur n'ai pas dépassé le temps imparti
             self.chrono_event = Fen.after(1000, self.chrono)
@@ -104,7 +104,7 @@ class display():
     def reset(self): # Cette fonction est appelé a chaque fin de partie pour réinitialiser ce module
         if App.InfinityMode == False: # Si l'on n'est pas en mode infini
             Fen.after_cancel(self.chrono_event) # On désactive le chrono
-            self.label.config(foreground = "black", background = "SystemButtonFace")
+            self.label.config(foreground = "black", background = DEFAULT_BG_COLOR)
 
             duration = time.time() - App.start_time
             duration_min, duration_sec = duration // 60, duration % 60

@@ -32,9 +32,12 @@ if not(os.path.exists("./statistic.pickle")):
 ######## initialisation ########
 Fen = Tk()
 Fen.resizable(width = False, height = False)
-Fen.iconbitmap(PATH_ASSETS + "icon.ico")
+Fen.iconphoto(False, ImageTk.PhotoImage(file = PATH_ASSETS + "icon.ico"))
 Fen.title("Emulateur - Bombe")
 classModule = {} # Dictionnaire qui va contenir tout les modules afin qu'ils puissent intéragir entre eux
+
+global DEFAULT_BG_COLOR
+DEFAULT_BG_COLOR = Fen.cget("background")
 
 for file in os.listdir(PATH_MODULE): # On cherche les modules dans leur dossier
 	with open(PATH_MODULE + file, "rb") as module: # On les ouvres en lecture
